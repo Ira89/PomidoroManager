@@ -7,4 +7,8 @@ public enum  GenerationType {
     public static GenerationType valueOfEnum(String text) throws Exception {
         return valueOf(text.trim());
     }
+
+    public static String[] getTextTypes() {
+        return new String[] {"Один раз", "Кажый день", "Каждую неделю", "Каждый месяц"};
+    }
 }

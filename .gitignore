@@ -13,4 +13,4 @@
 *.rar
 
 /.idea/
-/.dbtest/
+/dbtest/
