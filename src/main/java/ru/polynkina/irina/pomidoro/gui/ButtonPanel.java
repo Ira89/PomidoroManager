@@ -1,9 +1,9 @@
 package ru.polynkina.irina.pomidoro.gui;
 
+import ru.polynkina.irina.pomidoro.controller.Controller;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ButtonPanel extends JPanel {
 
@@ -12,17 +12,14 @@ public class ButtonPanel extends JPanel {
 
     private DialogFrame dialogFrame;
 
-    public ButtonPanel() {
+    public ButtonPanel(Controller controller) {
 
         setLayout(new GridLayout(AMOUNT_BUTTONS, AMOUNT_COLUMNS));
 
         JButton addTask = new JButton("Добавить задачу");
-        addTask.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dialogFrame = new DialogFrame("Добавление задачи");
-                dialogFrame.setVisible(true);
-            }
+        addTask.addActionListener(e -> {
+            dialogFrame = new DialogFrame("Добавление задачи", controller);
+            dialogFrame.setVisible(true);
         });
 
         JButton editTask = new JButton("Редактировать задачу");

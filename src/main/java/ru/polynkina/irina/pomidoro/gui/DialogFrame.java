@@ -1,15 +1,18 @@
 package ru.polynkina.irina.pomidoro.gui;
 
-import ru.polynkina.irina.pomidoro.GenerationType;
-import ru.polynkina.irina.pomidoro.Priority;
+import ru.polynkina.irina.pomidoro.controller.Controller;
+import ru.polynkina.irina.pomidoro.model.GenerationType;
+import ru.polynkina.irina.pomidoro.model.Priority;
+import ru.polynkina.irina.pomidoro.model.Task;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 
 public class DialogFrame extends JFrame {
 
-    private static int widthDialogFrame;
-    private static int heightDialogFrame;
+    private int widthDialogFrame;
+    private int heightDialogFrame;
 
     private JPanel panel;
 
@@ -26,7 +29,7 @@ public class DialogFrame extends JFrame {
     private Button ok;
     private Button cancel;
 
-    public DialogFrame(String name) {
+    public DialogFrame(String name, Controller controller) {
         super(name);
 
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
@@ -34,7 +37,7 @@ public class DialogFrame extends JFrame {
         heightDialogFrame = size.height / 2;
         setSize(widthDialogFrame, heightDialogFrame );
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
         panel = new JPanel();
         panel.setLayout(new GridLayout(5, 2));
@@ -66,7 +69,18 @@ public class DialogFrame extends JFrame {
         panel.add(new JScrollPane(endDateArea));
 
         ok = new Button("Добавить");
+        ok.addActionListener(e -> {
+            String description = descriptionArea.getText();
+            Priority priority = Priority.getValueByIndex(priorityBox.getItemCount());
+            GenerationType type = GenerationType.getValueByIndex(typeBox.getItemCount());
+            // TODO
+            LocalDate endDay = LocalDate.now();
+            controller.insert(new Task(description, priority, type, endDay));
+            dispose();
+        });
+
         cancel = new Button("Отменить");
+        cancel.addActionListener(e -> dispose());
         panel.add(ok);
         panel.add(cancel);
 

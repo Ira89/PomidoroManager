@@ -1,6 +1,7 @@
 package ru.polynkina.irina.pomidoro.gui;
 
-import ru.polynkina.irina.pomidoro.Task;
+import ru.polynkina.irina.pomidoro.controller.Controller;
+import ru.polynkina.irina.pomidoro.model.Task;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,16 +9,19 @@ import java.util.List;
 
 public class PomidoroFrame extends JFrame {
 
-    private static int widthFrame;
-    private static int heightFrame;
+    private int widthFrame;
+    private int heightFrame;
 
-    private static JPanel buttonPanel;
-    private static JPanel taskPanel;
+    private JPanel buttonPanel;
+    private JPanel taskPanel;
 
-    private static JTable table;
+    private JTable table;
 
-    public PomidoroFrame(List<Task> taskList) {
+    private Controller controller;
+
+    public PomidoroFrame(List<Task> taskList, Controller controller) {
         super("Pomidoro Manager");
+        this.controller = controller;
 
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         widthFrame = size.width / 2;
@@ -31,7 +35,7 @@ public class PomidoroFrame extends JFrame {
         table.setRowHeight(heightFrame / 15);
         table.getColumnModel().getColumn(0).setPreferredWidth(widthFrame / 2);
 
-        buttonPanel = new ButtonPanel();
+        buttonPanel = new ButtonPanel(controller);
         taskPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         taskPanel.add(buttonPanel);
 

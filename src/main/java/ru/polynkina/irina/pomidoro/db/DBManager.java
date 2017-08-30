@@ -45,4 +45,10 @@ public class DBManager {
         Statement statement = connection.createStatement();
         return statement.executeQuery(sql);
     }
+
+    public void insert(String sql) throws SQLException {
+        Statement statement = connection.createStatement();
+        statement.execute(sql);
+        statement.close();
+    }
 }

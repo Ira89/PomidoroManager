@@ -1,7 +1,11 @@
 package ru.polynkina.irina.pomidoro;
 
+import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.db.DBManager;
 import ru.polynkina.irina.pomidoro.gui.PomidoroFrame;
+import ru.polynkina.irina.pomidoro.model.GenerationType;
+import ru.polynkina.irina.pomidoro.model.Priority;
+import ru.polynkina.irina.pomidoro.model.Task;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,6 +45,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         DBManager dbManager = new DBManager("dbtest");
+        Controller controller = new Controller(dbManager);
         List<Task> taskList = new ArrayList<>();
 
         try {
@@ -64,7 +69,7 @@ public class Main {
 
         EventQueue.invokeAndWait(new Runnable() {
             public void run() {
-                JFrame frame = new PomidoroFrame(taskList);
+                JFrame frame = new PomidoroFrame(taskList, controller);
             }
         });
     }
