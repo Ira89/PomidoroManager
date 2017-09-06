@@ -1,4 +1,4 @@
-package ru.polynkina.irina.pomidoro.gui;
+package ru.polynkina.irina.pomidoro.view;
 
 import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.model.GenerationType;
@@ -9,12 +9,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 
-public class DialogFrame extends JFrame {
+public class DialogForCreatingTask extends JDialog {
 
-    private int widthDialogFrame;
-    private int heightDialogFrame;
-
-    private JPanel panel;
+    private static final int AMOUNT_ROWS = 5;
+    private static final int AMOUNT_COLUMNS = 2;
 
     private JLabel description;
     private JLabel priority;
@@ -26,22 +24,25 @@ public class DialogFrame extends JFrame {
     private JComboBox typeBox;
     private JTextArea endDateArea;
 
-    private Button ok;
-    private Button cancel;
+    private JButton ok;
+    private JButton cancel;
 
-    public DialogFrame(String name, Controller controller) {
-        super(name);
 
+    public DialogForCreatingTask(JFrame owner, String name, Controller controller) {
+        super(owner, name, true);
+        initializeSizeDialog();
+        createDialogElements(controller);
+        createView();
+    }
+
+    private void initializeSizeDialog() {
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-        widthDialogFrame = size.width / 3;
-        heightDialogFrame = size.height / 2;
-        setSize(widthDialogFrame, heightDialogFrame );
+        setSize(size.width / 3, size.height / 2);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+    }
 
-        panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 2));
-
+    private void createDialogElements(Controller controller) {
         description = new JLabel("Описание задачи");
         description.setHorizontalAlignment(JLabel.CENTER);
         descriptionArea = new JTextArea("введите описание...");
@@ -59,28 +60,37 @@ public class DialogFrame extends JFrame {
         endDate.setHorizontalAlignment(JLabel.CENTER);
         endDateArea = new JTextArea("укажите дату завершения задачи...");
 
-        panel.add(description);
-        panel.add(new JScrollPane(descriptionArea));
-        panel.add(priority);
-        panel.add(priorityBox);
-        panel.add(type);
-        panel.add(typeBox);
-        panel.add(endDate);
-        panel.add(new JScrollPane(endDateArea));
-
-        ok = new Button("Добавить");
+        ok = new JButton("Добавить");
         ok.addActionListener(e -> {
-            String description = descriptionArea.getText();
-            Priority priority = Priority.getValueByIndex(priorityBox.getItemCount());
-            GenerationType type = GenerationType.getValueByIndex(typeBox.getItemCount());
+            String desc = descriptionArea.getText();
+            Priority pr = Priority.getValueByIndex(priorityBox.getItemCount());
+            GenerationType t = GenerationType.getValueByIndex(typeBox.getItemCount());
             // TODO
             LocalDate endDay = LocalDate.now();
-            controller.insert(new Task(description, priority, type, endDay));
+            controller.insert(new Task(desc, pr, t, endDay));
             dispose();
         });
 
-        cancel = new Button("Отменить");
+        cancel = new JButton("Отменить");
         cancel.addActionListener(e -> dispose());
+    }
+
+    private void createView() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(AMOUNT_ROWS, AMOUNT_COLUMNS));
+
+        panel.add(description);
+        panel.add(descriptionArea);
+
+        panel.add(priority);
+        panel.add(priorityBox);
+
+        panel.add(type);
+        panel.add(typeBox);
+
+        panel.add(endDate);
+        panel.add(endDateArea);
+
         panel.add(ok);
         panel.add(cancel);
 

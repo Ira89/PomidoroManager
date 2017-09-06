@@ -1,4 +1,4 @@
-package ru.polynkina.irina.pomidoro.gui;
+package ru.polynkina.irina.pomidoro.view;
 
 import ru.polynkina.irina.pomidoro.model.Task;
 
@@ -7,7 +7,7 @@ import java.util.List;
 
 public class TaskTable extends DefaultTableModel {
 
-    private static Object[] headers = {"Описание", "Приоритет", "Окончание", "Время работы"};
+    private static final Object[] headers = {"Описание", "Приоритет", "Окончание", "Время работы"};
 
     public TaskTable(List<Task> taskList) {
         refreshTable(taskList);
