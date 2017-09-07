@@ -45,7 +45,7 @@ public class PomidoroFrame extends JFrame {
             DialogForCreatingTask dialogFrame = new DialogForCreatingTask(PomidoroFrame.this,"Добавление задачи", controller);
             dialogFrame.setVisible(true);
             while(dialogFrame.isVisible()) {}
-            updateTaskTable();
+            if(dialogFrame.userActionsIsSuccessful()) updateTaskTable();
         });
 
         JButton editTask = new JButton("Редактировать задачу");
@@ -81,7 +81,7 @@ public class PomidoroFrame extends JFrame {
     }
 
     private void updateTaskTable() {
-        table.refreshTable(controller.selectAll());
+        table.insertTask(controller.selectLastTask());
         taskTable.repaint();
         taskTable.revalidate();
     }

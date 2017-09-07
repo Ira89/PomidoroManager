@@ -17,7 +17,12 @@ public class TaskTable extends DefaultTableModel {
         setColumnIdentifiers(headers);
         for(Task task : taskList) {
             addRow(task.getInfo());
+            task.printInfo();
         }
+    }
+
+    public void insertTask(Task task) {
+        addRow(task.getInfo());
     }
 
     @Override

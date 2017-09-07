@@ -22,7 +22,9 @@ public class Controller {
 
     public void insert(Task task) {
         try {
-            dbManager.insert("INSERT INTO task VALUES" + task.getTextForSQL());
+            dbManager.executeUpdate("INSERT INTO task (" +
+                    "description, priority, type, start_date, end_date, time_work)" +
+                    "VALUES" + task.getTextForSQL());
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
@@ -32,9 +34,9 @@ public class Controller {
     public List<Task> selectAll() {
         List<Task> taskList = new ArrayList<>();
         try {
-            ResultSet result = dbManager.executeQuery("SELECT * FROM task");
+            ResultSet result = dbManager.executeQuery("SELECT * FROM task ORDER BY priority");
             while(result.next()) {
-                long id = result.getLong(1);
+                int id = result.getInt(1);
                 String description = result.getString(2);
                 Priority priority = Priority.valueOf(result.getString(3));
                 GenerationType type = GenerationType.valueOfEnum(result.getString(4));
@@ -42,12 +44,33 @@ public class Controller {
                 Date endDate = result.getDate(6);
                 Time time = result.getTime(7);
                 // TODO
-                taskList.add(new Task(description, priority, type, LocalDate.of(endDate.getYear(), endDate.getMonth(), endDate.getDay())));
+                taskList.add(new Task(id, description, priority, type, LocalDate.of(endDate.getYear(), endDate.getMonth(), endDate.getDay())));
             }
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
         }
         return taskList;
+    }
+
+    public Task selectLastTask() {
+        try {
+            ResultSet result = dbManager.executeQuery("SELECT * FROM task WHERE id = (SELECT MAX(id) FROM task)");
+            if(result.next()) {
+                int id = result.getInt(1);
+                String description = result.getString(2);
+                Priority priority = Priority.valueOf(result.getString(3));
+                GenerationType type = GenerationType.valueOfEnum(result.getString(4));
+                Date startDate = result.getDate(5);
+                Date endDate = result.getDate(6);
+                Time time = result.getTime(7);
+                // TODO
+                return new Task(id, description, priority, type, LocalDate.of(endDate.getYear(), endDate.getMonth(), endDate.getDay()));
+            }
+        } catch(Exception exc) {
+            exc.printStackTrace();
+            System.exit(-1);
+        }
+        return null;
     }
 }

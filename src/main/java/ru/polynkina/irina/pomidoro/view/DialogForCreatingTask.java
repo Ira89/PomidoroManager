@@ -27,6 +27,8 @@ public class DialogForCreatingTask extends JDialog {
     private JButton ok;
     private JButton cancel;
 
+    private boolean actionsIsSuccessful;
+
 
     public DialogForCreatingTask(JFrame owner, String name, Controller controller) {
         super(owner, name, true);
@@ -68,6 +70,7 @@ public class DialogForCreatingTask extends JDialog {
             // TODO
             LocalDate endDay = LocalDate.now();
             controller.insert(new Task(desc, pr, t, endDay));
+            actionsIsSuccessful = true;
             dispose();
         });
 
@@ -96,5 +99,9 @@ public class DialogForCreatingTask extends JDialog {
 
         add(panel);
         setVisible(false);
+    }
+
+    public boolean userActionsIsSuccessful() {
+        return actionsIsSuccessful;
     }
 }
