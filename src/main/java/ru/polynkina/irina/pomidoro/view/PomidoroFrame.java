@@ -74,7 +74,7 @@ public class PomidoroFrame extends JFrame {
     }
 
     private void createTaskTable() {
-        table = new TaskTable(controller.selectAll());
+        table = new TaskTable(controller.selectActiveTask());
         taskTable = new JTable(table);
         taskTable.setRowHeight(heightFrame / 15);
         taskTable.getColumnModel().getColumn(0).setPreferredWidth(widthFrame / 2);

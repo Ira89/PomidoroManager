@@ -13,14 +13,19 @@ public class Task {
     private LocalDate endDay;
     private LocalTime timeWork;
 
-    public Task(int id, String description, Priority priority, GenerationType type, LocalDate endDay) {
+    public Task(int id, String description, Priority priority, GenerationType type,
+                        LocalDate startDay, LocalDate endDay, LocalTime timeWork) {
         this.id = id;
         this.description = description;
         this.priority = priority;
         this.type = type;
-        startDay = LocalDate.now();
+        this.startDay = startDay;
         this.endDay = endDay;
-        timeWork = LocalTime.of(0, 0, 0);
+        this.timeWork = timeWork;
+    }
+
+    public Task(int id, String description, Priority priority, GenerationType type, LocalDate endDay) {
+        this(id, description, priority, type, LocalDate.now(), endDay, LocalTime.of(0, 0, 0));
     }
 
     public Task(String description, Priority priority, GenerationType type, LocalDate endDay) {
@@ -28,17 +33,16 @@ public class Task {
     }
 
     public String getTextForSQL() {
-        final String signBegin = "('";
+        final String sign = "'";
         final String delimiter = "','";
-        final String lastDelimiter = "')";
 
-        String SQLText = signBegin;
+        String SQLText = sign;
         SQLText += description + delimiter;
         SQLText += priority + delimiter;
         SQLText += type + delimiter;
         SQLText += startDay + delimiter;
         SQLText += endDay + delimiter;
-        SQLText += timeWork + lastDelimiter;
+        SQLText += timeWork + sign;
         return SQLText;
     }
 

@@ -1,11 +1,6 @@
 package ru.polynkina.irina.pomidoro.db;
 
-import ru.polynkina.irina.pomidoro.model.GenerationType;
-import ru.polynkina.irina.pomidoro.model.Priority;
-import ru.polynkina.irina.pomidoro.model.Task;
-
 import java.sql.*;
-import java.time.LocalDate;
 
 public class DBManager {
 
@@ -32,7 +27,6 @@ public class DBManager {
                 createActiveTaskTable();
                 createCloseTaskTable();
                 createAutoTaskTable();
-                addFictitiousTask();
             } catch(SQLException exc) {
                 exc.printStackTrace();
             }
@@ -89,17 +83,10 @@ public class DBManager {
     }
 
     private void createAutoTaskTable() throws SQLException {
-        executeUpdate("CREATE TABLE auot_task(" +
+        executeUpdate("CREATE TABLE auto_task(" +
                 "id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) NOT NULL," +
                 "id_task INTEGER," +
                 "FOREIGN KEY(id_task) REFERENCES task(id))");
-    }
-
-    private void addFictitiousTask() throws SQLException {
-        Task task = new Task("сделать ABC", Priority.C, GenerationType.ONCE, LocalDate.now());
-        executeUpdate("INSERT INTO task (" +
-                "description, priority, type, start_date, end_date, time_work)" +
-                "VALUES" + task.getTextForSQL());
     }
 
     public void executeUpdate(String sql) throws SQLException {
