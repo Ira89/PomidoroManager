@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class PomidoroFrame extends JFrame {
 
-    private static final int AMOUNT_BUTTONS = 5;
+    private static final int AMOUNT_BUTTONS = 6;
     private static final int AMOUNT_COLUMNS = 1;
 
     private Controller controller;
@@ -54,14 +54,30 @@ public class PomidoroFrame extends JFrame {
 
         JButton closeTask = new JButton("Закрыть задачу");
         closeTask.addActionListener(e -> {
+            CloseTaskDialog dialog = new CloseTaskDialog(PomidoroFrame.this,
+                    "Закрытие задачи", controller, table.getTask(taskTable.getSelectedRow()));
+            dialog.setVisible(true);
+            while(dialog.isVisible()) {}
+            if(dialog.userActionsIsSuccessful()) updateTaskTable();
         });
 
         JButton deleteTask = new JButton("Удалить задачу");
         deleteTask.addActionListener(e -> {
+            DeleteTaskDialog dialog = new DeleteTaskDialog(PomidoroFrame.this,
+                    "Удаление задачи", controller, table.getTask(taskTable.getSelectedRow()));
+            dialog.setVisible(true);
+            while(dialog.isVisible()) {}
+            if(dialog.userActionsIsSuccessful()) updateTaskTable();
         });
 
         JButton startWork = new JButton("Начать работу над задачей");
         startWork.addActionListener(e -> {
+        });
+
+        JButton showCloseTask = new JButton("Показать закрытые задачи");
+        showCloseTask.addActionListener(e -> {
+            CloseTaskFrame closeTaskFrame = new CloseTaskFrame(PomidoroFrame.this, controller);
+            closeTaskFrame.setVisible(true);
         });
 
         buttonPanel = new JPanel();
@@ -71,19 +87,25 @@ public class PomidoroFrame extends JFrame {
         buttonPanel.add(closeTask);
         buttonPanel.add(deleteTask);
         buttonPanel.add(startWork);
+        buttonPanel.add(showCloseTask);
     }
 
     private void createTaskTable() {
         table = new TaskTable(controller.selectActiveTask());
         taskTable = new JTable(table);
-        taskTable.setRowHeight(heightFrame / 15);
-        taskTable.getColumnModel().getColumn(0).setPreferredWidth(widthFrame / 2);
+        setDefaultSizeTable();
     }
 
     private void updateTaskTable() {
-        table.insertTask(controller.selectLastTask());
+        table.refreshTable(controller.selectActiveTask());
+        setDefaultSizeTable();
         taskTable.repaint();
         taskTable.revalidate();
+    }
+
+    private void setDefaultSizeTable() {
+        taskTable.setRowHeight(heightFrame / 15);
+        taskTable.getColumnModel().getColumn(0).setPreferredWidth(widthFrame / 2);
     }
 
     private void createView() {

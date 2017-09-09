@@ -86,7 +86,7 @@ public class DialogForCreatingTask extends JDialog {
             Priority taskPriority = Priority.getValueByIndex(priorityBox.getSelectedIndex());
             GenerationType taskType = GenerationType.getValueByIndex(typeBox.getSelectedIndex());
             LocalDate taskEndDay = LocalDate.parse(endDatePicker.getJFormattedTextField().getText());
-            controller.insert(new Task(taskDescription, taskPriority, taskType, taskEndDay));
+            controller.addTask(new Task(taskDescription, taskPriority, taskType, taskEndDay));
             actionsIsSuccessful = true;
             dispose();
         });

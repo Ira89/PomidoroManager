@@ -9,20 +9,23 @@ public class TaskTable extends DefaultTableModel {
 
     private static final Object[] headers = {"Описание", "Приоритет", "Окончание", "Время работы"};
 
+    private List<Task> taskList;
+
     public TaskTable(List<Task> taskList) {
         refreshTable(taskList);
     }
 
     public void refreshTable(List<Task> taskList) {
+        setRowCount(0);
+        this.taskList = taskList;
         setColumnIdentifiers(headers);
         for(Task task : taskList) {
             addRow(task.getInfo());
-            task.printInfo();
         }
     }
 
-    public void insertTask(Task task) {
-        addRow(task.getInfo());
+    public Task getTask(int row) {
+        return taskList.get(row);
     }
 
     @Override

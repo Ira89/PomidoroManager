@@ -32,6 +32,14 @@ public class Task {
         this(0, description, priority, type, endDay);
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getDescription() {
+        return description.trim();
+    }
+
     public String getTextForSQL() {
         final String sign = "'";
         final String delimiter = "','";
@@ -53,15 +61,5 @@ public class Task {
                 endDay.toString(),
                 timeWork.toString()
         };
-    }
-
-    public void printInfo() {
-        System.out.print(id + " ");
-        System.out.print(description.trim() + " ");
-        System.out.print(priority + " ");
-        System.out.print(type + " ");
-        System.out.print(startDay + " ");
-        System.out.print(endDay + " ");
-        System.out.println(timeWork + " ");
     }
 }

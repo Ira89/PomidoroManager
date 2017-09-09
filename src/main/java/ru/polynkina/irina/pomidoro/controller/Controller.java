@@ -19,13 +19,33 @@ public class Controller {
         this.dbManager = dbManager;
     }
 
-    public void insert(Task task) {
+    public void addTask(Task task) {
         try {
             dbManager.executeUpdate("INSERT INTO task (" +
                     "description, priority, type, start_date, end_date, time_work) " +
                     "VALUES(" + task.getTextForSQL() + ")");
             dbManager.executeUpdate("INSERT INTO active_task (id_task) " +
                     "VALUES(SELECT MAX(id) FROM task)");
+        } catch(Exception exc) {
+            exc.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    public void deleteTask(Task task) {
+        try {
+            dbManager.executeUpdate("DELETE FROM active_task WHERE id = " + task.getId());
+            dbManager.executeUpdate("DELETE FROM task WHERE id = " + task.getId());
+        } catch(Exception exc) {
+            exc.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    public void closeTask(Task task) {
+        try {
+            dbManager.executeUpdate("DELETE FROM active_task WHERE id = " + task.getId());
+            dbManager.executeUpdate("INSERT INTO close_task (id_task) VALUES(" + task.getId() + ")");
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
@@ -45,16 +65,17 @@ public class Controller {
         return taskList;
     }
 
-    public Task selectLastTask() {
+    public List<Task> selectCloseTask() {
+        List<Task> taskList = new ArrayList<>();
         try {
             ResultSet resultSet = dbManager.executeQuery("SELECT * FROM task " +
-                    "WHERE id = (SELECT MAX(id) FROM task)");
-            if(resultSet.next()) return parseTask(resultSet);
+                    "WHERE id IN (SELECT id_task FROM close_task) ORDER BY priority");
+            while(resultSet.next()) taskList.add(parseTask(resultSet));
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
         }
-        return null;
+        return taskList;
     }
 
     private Task parseTask(ResultSet resultSet) throws Exception {
