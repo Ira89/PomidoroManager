@@ -1,47 +1,51 @@
-package ru.polynkina.irina.pomidoro.view;
+package ru.polynkina.irina.pomidoro.view.addeditdialogs;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
 import org.jdatepicker.impl.UtilDateModel;
-import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.model.GenerationType;
 import ru.polynkina.irina.pomidoro.model.Priority;
 import ru.polynkina.irina.pomidoro.model.Task;
+import ru.polynkina.irina.pomidoro.view.dateformatter.DateLabelFormatter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.Properties;
 
-public class DialogForCreatingTask extends JDialog {
+public abstract class AddEditDialog extends JDialog {
 
-    private static final int AMOUNT_ROWS = 6;
+    private static final int AMOUNT_ROWS = 9;
     private static final int AMOUNT_COLUMNS = 2;
 
     private JLabel description;
     private JLabel priority;
     private JLabel type;
-    private JLabel startDate;
     private JLabel endDate;
 
-    private JTextArea descriptionArea;
+    private JTextPane descriptionArea;
     private JComboBox priorityBox;
     private JComboBox typeBox;
-    private JLabel startDateText;
     private JDatePickerImpl endDatePicker;
 
     private JButton ok;
     private JButton cancel;
 
+    private Task task;
     private boolean actionsIsSuccessful;
 
 
-    public DialogForCreatingTask(JFrame owner, String name, Controller controller) {
+    public AddEditDialog(JFrame owner, String name, Task task) {
         super(owner, name, true);
+        this.task = task;
         initializeSizeDialog();
-        createDialogElements(controller);
+        createDialogElements();
         createView();
     }
+
+    public abstract void okAction();
+
+    public abstract void cancelAction();
 
     private void initializeSizeDialog() {
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
@@ -50,26 +54,28 @@ public class DialogForCreatingTask extends JDialog {
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
 
-    private void createDialogElements(Controller controller) {
+    private void createDialogElements() {
         description = new JLabel("Описание задачи");
         description.setHorizontalAlignment(JLabel.CENTER);
-        descriptionArea = new JTextArea("введите описание...");
-        descriptionArea.setLineWrap(true);
+        descriptionArea = new JTextPane();
+        descriptionArea.setText(task.getDescription());
 
         priority = new JLabel("Приоритет задачи");
         priority.setHorizontalAlignment(JLabel.CENTER);
         priorityBox = new JComboBox(Priority.values());
+        priorityBox.setSelectedIndex(Priority.getIndexByValue(task.getPriority()));
 
         type = new JLabel("Тип генерации");
         type.setHorizontalAlignment(JLabel.CENTER);
         typeBox = new JComboBox(GenerationType.getTextTypes());
+        typeBox.setSelectedIndex(GenerationType.getIndexByValue(task.getType()));
+        typeBox.addActionListener(e -> {
+            GenerationType currentType = GenerationType.getValueByIndex(typeBox.getSelectedIndex());
+            if(currentType != GenerationType.ONCE) endDate.setText("Начать генерацию с");
+            else endDate.setText("Завершить задачу до");
+        });
 
-        startDate = new JLabel("Дата начала задачи");
-        startDate.setHorizontalAlignment(JLabel.CENTER);
-        startDateText = new JLabel();
-        startDateText.setText(LocalDate.now().toString());
-
-        endDate = new JLabel("Дата завершения задачи");
+        endDate = new JLabel("Завершить задачу до");
         endDate.setHorizontalAlignment(JLabel.CENTER);
 
         Properties properties = new Properties();
@@ -80,19 +86,36 @@ public class DialogForCreatingTask extends JDialog {
         JDatePanelImpl endDatePanel = new JDatePanelImpl(endModel, properties);
         endDatePicker = new JDatePickerImpl(endDatePanel, new DateLabelFormatter());
 
-        ok = new JButton("Добавить");
+        ok = new JButton("Ок");
         ok.addActionListener(e -> {
-            String taskDescription = descriptionArea.getText();
-            Priority taskPriority = Priority.getValueByIndex(priorityBox.getSelectedIndex());
-            GenerationType taskType = GenerationType.getValueByIndex(typeBox.getSelectedIndex());
-            LocalDate taskEndDay = LocalDate.parse(endDatePicker.getJFormattedTextField().getText());
-            controller.addTask(new Task(taskDescription, taskPriority, taskType, taskEndDay));
             actionsIsSuccessful = true;
+            okAction();
             dispose();
         });
 
-        cancel = new JButton("Отменить");
-        cancel.addActionListener(e -> dispose());
+        cancel = new JButton("Отмена");
+        cancel.addActionListener(e -> {
+            actionsIsSuccessful = false;
+            cancelAction();
+            dispose();
+        });
+    }
+
+    protected Task formTask() {
+        int id = task.getId();
+        String taskDescription = descriptionArea.getText();
+        Priority taskPriority = Priority.getValueByIndex(priorityBox.getSelectedIndex());
+        GenerationType taskType = GenerationType.getValueByIndex(typeBox.getSelectedIndex());
+        LocalDate startDay;
+        LocalDate endDay;
+        if(taskType == GenerationType.ONCE) {
+            startDay = LocalDate.now();
+            endDay = LocalDate.parse(endDatePicker.getJFormattedTextField().getText());
+        } else {
+            startDay = LocalDate.parse(endDatePicker.getJFormattedTextField().getText());
+            endDay = LocalDate.of(9999, 12, 31);
+        }
+        return new Task(id, taskDescription, taskPriority, taskType, startDay, endDay);
     }
 
     private void createView() {
@@ -100,19 +123,24 @@ public class DialogForCreatingTask extends JDialog {
         panel.setLayout(new GridLayout(AMOUNT_ROWS, AMOUNT_COLUMNS));
 
         panel.add(description);
-        panel.add(descriptionArea);
+        panel.add(new JScrollPane(descriptionArea));
+        panel.add(new JSeparator());
+        panel.add(new JSeparator());
 
         panel.add(priority);
         panel.add(priorityBox);
+        panel.add(new JSeparator());
+        panel.add(new JSeparator());
 
         panel.add(type);
         panel.add(typeBox);
-
-        panel.add(startDate);
-        panel.add(startDateText);
+        panel.add(new JSeparator());
+        panel.add(new JSeparator());
 
         panel.add(endDate);
         panel.add(endDatePicker);
+        panel.add(new JSeparator());
+        panel.add(new JSeparator());
 
         panel.add(ok);
         panel.add(cancel);

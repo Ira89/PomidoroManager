@@ -16,12 +16,16 @@ public class Task {
     public Task(int id, String description, Priority priority, GenerationType type,
                         LocalDate startDay, LocalDate endDay, LocalTime timeWork) {
         this.id = id;
-        this.description = description;
+        this.description = description.trim();
         this.priority = priority;
         this.type = type;
         this.startDay = startDay;
         this.endDay = endDay;
         this.timeWork = timeWork;
+    }
+
+    public Task(int id, String description, Priority priority, GenerationType type, LocalDate startDay, LocalDate endDay) {
+        this(id, description, priority, type, startDay, endDay, LocalTime.of(0, 0, 0));
     }
 
     public Task(int id, String description, Priority priority, GenerationType type, LocalDate endDay) {
@@ -37,7 +41,23 @@ public class Task {
     }
 
     public String getDescription() {
-        return description.trim();
+        return description;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public GenerationType getType() {
+        return type;
+    }
+
+    public LocalDate getStartDay() {
+        return startDay;
+    }
+
+    public LocalDate getEndDay() {
+        return endDay;
     }
 
     public String getTextForSQL() {

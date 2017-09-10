@@ -1,13 +1,18 @@
 package ru.polynkina.irina.pomidoro.view;
 
 import ru.polynkina.irina.pomidoro.controller.Controller;
+import ru.polynkina.irina.pomidoro.view.addeditdialogs.AddTaskDialog;
+import ru.polynkina.irina.pomidoro.view.addeditdialogs.EditTaskDialog;
+import ru.polynkina.irina.pomidoro.view.okcanceldialogs.CloseTaskDialog;
+import ru.polynkina.irina.pomidoro.view.okcanceldialogs.DeleteTaskDialog;
+import ru.polynkina.irina.pomidoro.view.tasktable.TaskTable;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class PomidoroFrame extends JFrame {
 
-    private static final int AMOUNT_BUTTONS = 6;
+    private static final int AMOUNT_BUTTONS = 7;
     private static final int AMOUNT_COLUMNS = 1;
 
     private Controller controller;
@@ -42,7 +47,7 @@ public class PomidoroFrame extends JFrame {
     private void createButtonPanel() {
         JButton addTask = new JButton("Добавить задачу");
         addTask.addActionListener(e -> {
-            DialogForCreatingTask dialogFrame = new DialogForCreatingTask(PomidoroFrame.this,"Добавление задачи", controller);
+            AddTaskDialog dialogFrame = new AddTaskDialog(PomidoroFrame.this,"Добавление задачи", controller);
             dialogFrame.setVisible(true);
             while(dialogFrame.isVisible()) {}
             if(dialogFrame.userActionsIsSuccessful()) updateTaskTable();
@@ -50,6 +55,11 @@ public class PomidoroFrame extends JFrame {
 
         JButton editTask = new JButton("Редактировать задачу");
         editTask.addActionListener(e -> {
+            EditTaskDialog dialog = new EditTaskDialog(PomidoroFrame.this,
+                    "Редактирование задачи", controller, table.getTask(taskTable.getSelectedRow()));
+            dialog.setVisible(true);
+            while(dialog.isVisible()) {}
+            if(dialog.userActionsIsSuccessful()) updateTaskTable();
         });
 
         JButton closeTask = new JButton("Закрыть задачу");
@@ -74,6 +84,12 @@ public class PomidoroFrame extends JFrame {
         startWork.addActionListener(e -> {
         });
 
+        JButton showAutoTask = new JButton("Показать авто-задачи");
+        showAutoTask.addActionListener(e -> {
+            AutoTaskFrame autoTaskFrame = new AutoTaskFrame(PomidoroFrame.this, controller);
+            autoTaskFrame.setVisible(true);
+        });
+
         JButton showCloseTask = new JButton("Показать закрытые задачи");
         showCloseTask.addActionListener(e -> {
             CloseTaskFrame closeTaskFrame = new CloseTaskFrame(PomidoroFrame.this, controller);
@@ -87,6 +103,7 @@ public class PomidoroFrame extends JFrame {
         buttonPanel.add(closeTask);
         buttonPanel.add(deleteTask);
         buttonPanel.add(startWork);
+        buttonPanel.add(showAutoTask);
         buttonPanel.add(showCloseTask);
     }
 

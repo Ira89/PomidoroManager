@@ -12,4 +12,13 @@ public enum Priority {
             default: return D;
         }
     }
+
+    public static int getIndexByValue(Priority priority) {
+        switch(priority) {
+            case A: return 0;
+            case B: return 1;
+            case C: return 2;
+            default: return 3;
+        }
+    }
 }

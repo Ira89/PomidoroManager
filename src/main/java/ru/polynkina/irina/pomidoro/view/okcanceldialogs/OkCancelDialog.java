@@ -1,6 +1,5 @@
-package ru.polynkina.irina.pomidoro.view;
+package ru.polynkina.irina.pomidoro.view.okcanceldialogs;
 
-import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.model.Task;
 
 import javax.swing.*;
@@ -18,7 +17,7 @@ public abstract class OkCancelDialog extends JDialog {
     private boolean actionsIsSuccessful;
 
 
-    public OkCancelDialog(JFrame owner, String name, Controller controller, Task task) {
+    public OkCancelDialog(JFrame owner, String name, Task task) {
         super(owner, name, true);
         setLocation(owner.getX(), owner.getY());
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -50,7 +49,7 @@ public abstract class OkCancelDialog extends JDialog {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(1, 2));
 
-        ok = new JButton("Да");
+        ok = new JButton("Ок");
         ok.addActionListener(e -> {
             actionsIsSuccessful = true;
             okAction();

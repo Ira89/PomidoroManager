@@ -17,6 +17,15 @@ public enum  GenerationType {
         }
     }
 
+    public static int getIndexByValue(GenerationType type) {
+        switch(type) {
+            case ONCE: return 0;
+            case EVERY_DAY: return 1;
+            case EVERY_WEEK: return 2;
+            default: return 3;
+        }
+    }
+
     public static String[] getTextTypes() {
         return new String[] {"Один раз", "Кажый день", "Каждую неделю", "Каждый месяц"};
     }

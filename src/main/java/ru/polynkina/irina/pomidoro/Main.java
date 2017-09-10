@@ -12,6 +12,7 @@ public class Main {
 
         DBManager dbManager = new DBManager("dbtest");
         Controller controller = new Controller(dbManager);
+        controller.generateAutoTasks();
         EventQueue.invokeAndWait(() -> new PomidoroFrame(controller));
     }
 }

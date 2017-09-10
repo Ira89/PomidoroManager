@@ -20,12 +20,41 @@ public class Controller {
     }
 
     public void addTask(Task task) {
+        System.out.println("add: " + task);
         try {
             dbManager.executeUpdate("INSERT INTO task (" +
                     "description, priority, type, start_date, end_date, time_work) " +
                     "VALUES(" + task.getTextForSQL() + ")");
-            dbManager.executeUpdate("INSERT INTO active_task (id_task) " +
-                    "VALUES(SELECT MAX(id) FROM task)");
+            if(task.getType() == GenerationType.ONCE) {
+                dbManager.executeUpdate("INSERT INTO active_task (id_task) " +
+                        "VALUES(SELECT MAX(id) FROM task)");
+            } else {
+                dbManager.executeUpdate("INSERT INTO auto_task (id_task) " +
+                        "VALUES(SELECT MAX(id) FROM task)");
+            }
+        } catch(Exception exc) {
+            exc.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
+    public void updateTask(Task task) {
+        System.out.println("update: " + task);
+        try {
+            ResultSet resultSet = dbManager.executeQuery("SELECT type FROM task WHERE id = " + task.getId());
+            resultSet.next();
+            GenerationType oldType = GenerationType.valueOfEnum(resultSet.getString(1));
+
+            dbManager.executeUpdate("UPDATE task SET description = '" + task.getDescription() +
+            "', priority = '" + task.getPriority() + "', type = '" + task.getType() +
+            "', start_date = '" + task.getStartDay() + "', end_date = '" + task.getEndDay() +
+            "' WHERE id = " + task.getId());
+
+            if(oldType != task.getType()) {
+                dbManager.executeUpdate("DELETE FROM active_task WHERE id_task = " + task.getId());
+                dbManager.executeUpdate("INSERT INTO auto_task (id_task) VALUES(" + task.getId() + ")");
+            }
+
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
@@ -33,9 +62,19 @@ public class Controller {
     }
 
     public void deleteTask(Task task) {
+        System.out.println("delete: " + task);
         try {
-            dbManager.executeUpdate("DELETE FROM active_task WHERE id = " + task.getId());
-            dbManager.executeUpdate("DELETE FROM task WHERE id = " + task.getId());
+            ResultSet resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id = " + task.getId());
+            if(resultSet.next()) {
+                dbManager.executeUpdate("DELETE FROM active_task WHERE id_task = " + task.getId());
+                dbManager.executeUpdate("DELETE FROM task WHERE id = " + task.getId());
+            } else {
+                // авто-таск безвозвратно не удаляем, инфо оставляем для истории
+                dbManager.executeUpdate("DELETE FROM active_task WHERE id_task = " + task.getId());
+                dbManager.executeUpdate("DELETE FROM auto_task WHERE id_task = " + task.getId());
+                dbManager.executeUpdate("INSERT INTO close_task (id_task) VALUES (" + task.getId() + ")");
+            }
+            resultSet.close();
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
@@ -43,8 +82,9 @@ public class Controller {
     }
 
     public void closeTask(Task task) {
+        System.out.println("close: " + task);
         try {
-            dbManager.executeUpdate("DELETE FROM active_task WHERE id = " + task.getId());
+            dbManager.executeUpdate("DELETE FROM active_task WHERE id_task = " + task.getId());
             dbManager.executeUpdate("INSERT INTO close_task (id_task) VALUES(" + task.getId() + ")");
         } catch(Exception exc) {
             exc.printStackTrace();
@@ -58,6 +98,7 @@ public class Controller {
             ResultSet resultSet = dbManager.executeQuery("SELECT * FROM task " +
                     "WHERE id IN (SELECT id_task FROM active_task) ORDER BY priority");
             while(resultSet.next()) taskList.add(parseTask(resultSet));
+            resultSet.close();
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
@@ -71,11 +112,41 @@ public class Controller {
             ResultSet resultSet = dbManager.executeQuery("SELECT * FROM task " +
                     "WHERE id IN (SELECT id_task FROM close_task) ORDER BY priority");
             while(resultSet.next()) taskList.add(parseTask(resultSet));
+            resultSet.close();
         } catch(Exception exc) {
             exc.printStackTrace();
             System.exit(-1);
         }
         return taskList;
+    }
+
+    public List<Task> selectAutoTask() {
+        List<Task> taskList = new ArrayList<>();
+        try {
+            ResultSet resultSet = dbManager.executeQuery("SELECT * FROM task " +
+                    "WHERE id IN (SELECT id_task FROM auto_task) ORDER BY priority");
+            while(resultSet.next()) taskList.add(parseTask(resultSet));
+            resultSet.close();
+        } catch(Exception exc) {
+            exc.printStackTrace();
+            System.exit(-1);
+        }
+        return taskList;
+    }
+
+    public void generateAutoTasks() {
+        try {
+            ResultSet resultSet = dbManager.executeQuery("SELECT task.id FROM task, auto_task " +
+                    "WHERE task.id = auto_task.id_task " +
+                    "AND task.start_date = " + "'" + LocalDate.now() + "'");
+            while(resultSet.next()) {
+                dbManager.executeUpdate("INSERT INTO active_task (id_task) VALUES(" + resultSet.getInt(1) + ")");
+            }
+            resultSet.close();
+        } catch(Exception exc) {
+            exc.printStackTrace();
+            System.exit(-1);
+        }
     }
 
     private Task parseTask(ResultSet resultSet) throws Exception {
