@@ -40,6 +40,10 @@ public class Task {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -81,5 +85,18 @@ public class Task {
                 endDay.toString(),
                 timeWork.toString()
         };
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", priority=" + priority +
+                ", type=" + type +
+                ", startDay=" + startDay +
+                ", endDay=" + endDay +
+                ", timeWork=" + timeWork +
+                '}';
     }
 }
