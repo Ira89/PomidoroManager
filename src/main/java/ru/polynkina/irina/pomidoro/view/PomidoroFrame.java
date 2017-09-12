@@ -1,5 +1,6 @@
 package ru.polynkina.irina.pomidoro.view;
 
+import ru.polynkina.irina.pomidoro.PomidoroTimer;
 import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.view.addeditdialogs.AddTaskDialog;
 import ru.polynkina.irina.pomidoro.view.addeditdialogs.EditTaskDialog;
@@ -9,10 +10,12 @@ import ru.polynkina.irina.pomidoro.view.tasktable.TaskTable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.time.LocalTime;
 
 public class PomidoroFrame extends JFrame {
 
-    private static final int AMOUNT_BUTTONS = 7;
+    private static final int AMOUNT_BUTTONS = 9;
     private static final int AMOUNT_COLUMNS = 1;
 
     private Controller controller;
@@ -24,6 +27,10 @@ public class PomidoroFrame extends JFrame {
     private JTable taskTable;
     private TaskTable table;
 
+    private PomidoroTimer pomidoroTimer;
+    private  Timer timer;
+    private JTextField timeField;
+
 
     public PomidoroFrame(Controller controller) {
         super("Pomidoro Manager");
@@ -32,6 +39,16 @@ public class PomidoroFrame extends JFrame {
         createButtonPanel();
         createTaskTable();
         createView();
+
+        pomidoroTimer = new PomidoroTimer();
+        timer = new Timer(0, event -> {
+            pomidoroTimer.run();
+            if(pomidoroTimer.isTimeWork()) {
+                timeField.setText("Время работы: " + LocalTime.ofSecondOfDay(pomidoroTimer.getTimeWorkUntilEnd()).toString());
+            } else {
+                timeField.setText("Время отдыха: " + LocalTime.ofSecondOfDay(pomidoroTimer.getTimePauseUntilEnd()).toString());
+            }
+        });
     }
 
     private void initializeSizeFrame() {
@@ -80,10 +97,6 @@ public class PomidoroFrame extends JFrame {
             if(dialog.userActionsIsSuccessful()) updateTaskTable();
         });
 
-        JButton startWork = new JButton("Начать работу над задачей");
-        startWork.addActionListener(e -> {
-        });
-
         JButton showAutoTask = new JButton("Показать авто-задачи");
         showAutoTask.addActionListener(e -> {
             AutoTaskFrame autoTaskFrame = new AutoTaskFrame(PomidoroFrame.this, controller);
@@ -96,15 +109,32 @@ public class PomidoroFrame extends JFrame {
             closeTaskFrame.setVisible(true);
         });
 
+        timeField = new JTextField();
+        timeField.setEnabled(false);
+        timeField.setDisabledTextColor(Color.RED);
+
+        JButton startWork = new JButton("Работать над задачей");
+        startWork.addActionListener((ActionEvent e) -> timer.start());
+
+        JButton endWork = new JButton("Остановить работу");
+        endWork.addActionListener(e -> {
+            timer.stop();
+            // TODO: new form -> verification -> controller -> db
+            timeField.setText("");
+        });
+
+
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(AMOUNT_BUTTONS, AMOUNT_COLUMNS));
         buttonPanel.add(addTask);
         buttonPanel.add(editTask);
         buttonPanel.add(closeTask);
         buttonPanel.add(deleteTask);
-        buttonPanel.add(startWork);
         buttonPanel.add(showAutoTask);
         buttonPanel.add(showCloseTask);
+        buttonPanel.add(startWork);
+        buttonPanel.add(endWork);
+        buttonPanel.add(timeField);
     }
 
     private void createTaskTable() {
