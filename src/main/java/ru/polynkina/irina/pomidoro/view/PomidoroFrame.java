@@ -2,10 +2,13 @@ package ru.polynkina.irina.pomidoro.view;
 
 import ru.polynkina.irina.pomidoro.PomidoroTimer;
 import ru.polynkina.irina.pomidoro.controller.Controller;
+import ru.polynkina.irina.pomidoro.model.Task;
 import ru.polynkina.irina.pomidoro.view.addeditdialogs.AddTaskDialog;
 import ru.polynkina.irina.pomidoro.view.addeditdialogs.EditTaskDialog;
 import ru.polynkina.irina.pomidoro.view.okcanceldialogs.CloseTaskDialog;
 import ru.polynkina.irina.pomidoro.view.okcanceldialogs.DeleteTaskDialog;
+import ru.polynkina.irina.pomidoro.view.okcanceldialogs.EndWorkDialog;
+import ru.polynkina.irina.pomidoro.view.okcanceldialogs.StartWorkDialog;
 import ru.polynkina.irina.pomidoro.view.tasktable.TaskTable;
 
 import javax.swing.*;
@@ -19,6 +22,7 @@ public class PomidoroFrame extends JFrame {
     private static final int AMOUNT_COLUMNS = 1;
 
     private Controller controller;
+    private Task taskForWork;
 
     private int widthFrame;
     private int heightFrame;
@@ -114,12 +118,35 @@ public class PomidoroFrame extends JFrame {
         timeField.setDisabledTextColor(Color.RED);
 
         JButton startWork = new JButton("Работать над задачей");
-        startWork.addActionListener((ActionEvent e) -> timer.start());
+        startWork.addActionListener((ActionEvent e) -> {
+            taskForWork = table.getTask(taskTable.getSelectedRow());
+            if(taskForWork != null) {
+                addTask.setEnabled(false);
+                editTask.setEnabled(false);
+                closeTask.setEnabled(false);
+                deleteTask.setEnabled(false);
+                startWork.setEnabled(false);
+                StartWorkDialog dialog = new StartWorkDialog(PomidoroFrame.this, "Начать работу",
+                        controller, taskForWork, timer);
+                dialog.setVisible(true);
+                while(dialog.isVisible()){}
+            }
+        });
 
         JButton endWork = new JButton("Остановить работу");
         endWork.addActionListener(e -> {
-            timer.stop();
-            // TODO: new form -> verification -> controller -> db
+            EndWorkDialog dialog = new EndWorkDialog(PomidoroFrame.this, "Завершить работу",
+                    controller, taskForWork, pomidoroTimer, timer);
+            dialog.setVisible(true);
+            while(dialog.isVisible()){}
+            if(dialog.userActionsIsSuccessful()) {
+                updateTaskTable();
+                addTask.setEnabled(true);
+                editTask.setEnabled(true);
+                closeTask.setEnabled(true);
+                deleteTask.setEnabled(true);
+                startWork.setEnabled(true);
+            }
             timeField.setText("");
         });
 

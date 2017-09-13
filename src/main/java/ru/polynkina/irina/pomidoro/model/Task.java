@@ -11,7 +11,7 @@ public class Task {
     private GenerationType type;
     private LocalDate startDay;
     private LocalDate endDay;
-    private LocalTime timeWork;
+    private LocalTime workTime;
 
     public Task(int id, String description, Priority priority, GenerationType type,
                         LocalDate startDay, LocalDate endDay, LocalTime timeWork) {
@@ -21,7 +21,7 @@ public class Task {
         this.type = type;
         this.startDay = startDay;
         this.endDay = endDay;
-        this.timeWork = timeWork;
+        this.workTime = timeWork;
     }
 
     public Task(int id, String description, Priority priority, GenerationType type, LocalDate startDay, LocalDate endDay) {
@@ -64,6 +64,14 @@ public class Task {
         return endDay;
     }
 
+    public LocalTime getWorkTime() {
+        return workTime;
+    }
+
+    public void addWorkTime(LocalTime time) {
+        workTime = workTime.plusSeconds(time.getSecond());
+    }
+
     public String getTextForSQL() {
         final String sign = "'";
         final String delimiter = "','";
@@ -74,7 +82,7 @@ public class Task {
         SQLText += type + delimiter;
         SQLText += startDay + delimiter;
         SQLText += endDay + delimiter;
-        SQLText += timeWork + sign;
+        SQLText += workTime + sign;
         return SQLText;
     }
 
@@ -83,7 +91,7 @@ public class Task {
                 description,
                 priority.name(),
                 endDay.toString(),
-                timeWork.toString()
+                workTime.toString()
         };
     }
 
@@ -96,7 +104,7 @@ public class Task {
                 ", type=" + type +
                 ", startDay=" + startDay +
                 ", endDay=" + endDay +
-                ", timeWork=" + timeWork +
+                ", timeWork=" + workTime +
                 '}';
     }
 }

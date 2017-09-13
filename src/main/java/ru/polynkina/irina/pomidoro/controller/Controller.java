@@ -117,6 +117,21 @@ public class Controller {
         }
     }
 
+    public void updateWorkTime(Task task) {
+        try {
+            ResultSet resultSet = dbManager.executeQuery("SELECT * FROM task WHERE id = " + task.getId());
+            resultSet.next();
+            Task taskOld = parseTask(resultSet);
+            LOGGER.info("update time: " + taskOld);
+            dbManager.executeUpdate("UPDATE task SET time_work = '" + task.getWorkTime() + "' WHERE id = " + task.getId());
+            LOGGER.info("id=" + task.getId() + " new workTime: " + task.getWorkTime());
+            resultSet.close();
+        } catch(Exception exc) {
+            exc.printStackTrace();
+            System.exit(-1);
+        }
+    }
+
     public List<Task> selectActiveTask() {
         List<Task> taskList = new ArrayList<>();
         try {

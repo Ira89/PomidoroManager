@@ -1,12 +1,14 @@
 package ru.polynkina.irina.pomidoro;
 
+import ru.polynkina.irina.pomidoro.view.OkFrame;
+
 import java.util.concurrent.TimeUnit;
 
 public class PomidoroTimer {
 
-    private static final int TASK_TIME_IN_SECONDS = 5; //25 * 60;
-    private static final int SHORT_PAUSE_IN_SECONDS = 1; //5 * 60;
-    private static final int BIG_PAUSE_IN_SECONDS = 5; //15 * 60;
+    private static final int TASK_TIME_IN_SECONDS = 25 * 60;
+    private static final int SHORT_PAUSE_IN_SECONDS = 5 * 60;
+    private static final int BIG_PAUSE_IN_SECONDS = 15 * 60;
 
     private int timeWorkInSeconds;
     private int timePauseInSeconds;
@@ -17,7 +19,6 @@ public class PomidoroTimer {
 
     private int amountCyclesWork;
     private int amountCyclesPause;
-    private int amountFullCycles;
 
     public PomidoroTimer() {
         isTimeWork = true;
@@ -25,10 +26,6 @@ public class PomidoroTimer {
 
     public boolean isTimeWork() {
         return isTimeWork;
-    }
-
-    public boolean isTimePause() {
-        return isTimePause;
     }
 
     public void run() {
@@ -41,6 +38,8 @@ public class PomidoroTimer {
                     isTimeWork = false;
                     isTimePause = true;
                     ++amountCyclesWork;
+                    OkFrame frame = new OkFrame(null, "Перерыв!");
+                    while(frame.isVisible()){}
                 }
             } else {
                 if(++timePauseInSeconds == timeCurrentPause) {
@@ -48,6 +47,8 @@ public class PomidoroTimer {
                     isTimeWork = true;
                     isTimePause = false;
                     ++amountCyclesPause;
+                    OkFrame frame = new OkFrame(null,"За работу!");
+                    while(frame.isVisible()){}
                 }
             }
         } catch(InterruptedException exc) {
@@ -66,5 +67,15 @@ public class PomidoroTimer {
 
     public int getAllTimeWork() {
         return timeWorkInSeconds + amountCyclesWork * TASK_TIME_IN_SECONDS;
+    }
+
+    public void reset() {
+        isTimeWork = true;
+        isTimePause = false;
+        timeWorkInSeconds = 0;
+        timePauseInSeconds = 0;
+        timeCurrentPause = 0;
+        amountCyclesWork = 0;
+        amountCyclesPause = 0;
     }
 }
