@@ -1,6 +1,6 @@
 package ru.polynkina.irina.pomidoro;
 
-import ru.polynkina.irina.pomidoro.view.OkFrame;
+import ru.polynkina.irina.pomidoro.view.InfoFrame;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,13 +15,17 @@ public class PomidoroTimer {
     private int timeCurrentPause;
 
     private boolean isTimeWork;
-    private boolean isTimePause;
 
     private int amountCyclesWork;
     private int amountCyclesPause;
 
+    private InfoFrame pause;
+    private InfoFrame work;
+
     public PomidoroTimer() {
         isTimeWork = true;
+        pause = new InfoFrame(null, "Перерыв!");
+        work = new InfoFrame(null, "За работу!");
     }
 
     public boolean isTimeWork() {
@@ -36,19 +40,15 @@ public class PomidoroTimer {
                 if(++timeWorkInSeconds == TASK_TIME_IN_SECONDS) {
                     timeWorkInSeconds = 0;
                     isTimeWork = false;
-                    isTimePause = true;
                     ++amountCyclesWork;
-                    OkFrame frame = new OkFrame(null, "Перерыв!");
-                    while(frame.isVisible()){}
+                    pause.setVisible(true);
                 }
             } else {
                 if(++timePauseInSeconds == timeCurrentPause) {
                     timePauseInSeconds = 0;
                     isTimeWork = true;
-                    isTimePause = false;
                     ++amountCyclesPause;
-                    OkFrame frame = new OkFrame(null,"За работу!");
-                    while(frame.isVisible()){}
+                    work.setVisible(true);
                 }
             }
         } catch(InterruptedException exc) {
@@ -71,7 +71,6 @@ public class PomidoroTimer {
 
     public void reset() {
         isTimeWork = true;
-        isTimePause = false;
         timeWorkInSeconds = 0;
         timePauseInSeconds = 0;
         timeCurrentPause = 0;

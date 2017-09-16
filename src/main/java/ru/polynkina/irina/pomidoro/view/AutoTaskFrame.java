@@ -12,7 +12,7 @@ public class AutoTaskFrame extends JDialog {
     private JTable taskTable;
 
     public AutoTaskFrame(JFrame owner, Controller controller) {
-        super(owner, "Закрытые задачи", true);
+        super(owner, "Авто задачи", true);
 
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
         widthFrame = size.width / 2;
