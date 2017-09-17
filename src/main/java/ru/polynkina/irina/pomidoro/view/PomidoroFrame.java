@@ -14,9 +14,11 @@ import ru.polynkina.irina.pomidoro.view.tasktable.TaskTable;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.time.LocalTime;
+import java.io.FileOutputStream;
 import java.util.Properties;
 
 public class PomidoroFrame extends JFrame {
@@ -34,28 +36,35 @@ public class PomidoroFrame extends JFrame {
     private JTable taskTable;
     private TaskTable table;
 
+    private JButton addTask;
+    private JButton editTask;
+    private JButton closeTask;
+    private JButton deleteTask;
+    private JButton startWork;
+    private JButton endWork;
+    private JButton showAutoTask;
+    private JButton showCloseTask;
+
     private PomidoroTimer pomidoroTimer;
-    private  Timer timer;
     private JTextField timeField;
+    private Thread thread;
 
 
     public PomidoroFrame(Controller controller) {
         super("Pomidoro Manager");
         this.controller = controller;
+        addWindowListener(new SaveListener());
+
+        timeField = new JTextField();
+        timeField.setEnabled(false);
+        timeField.setDisabledTextColor(Color.BLUE);
+        pomidoroTimer = new PomidoroTimer(timeField);
+        thread = new Thread(pomidoroTimer);
+
         initializeSizeFrame();
         createButtonPanel();
         createTaskTable();
         createView();
-
-        pomidoroTimer = new PomidoroTimer();
-        timer = new Timer(0, event -> {
-            pomidoroTimer.run();
-            if(pomidoroTimer.isTimeWork()) {
-                timeField.setText("Время работы: " + LocalTime.ofSecondOfDay(pomidoroTimer.getTimeWorkUntilEnd()).toString());
-            } else {
-                timeField.setText("Время отдыха: " + LocalTime.ofSecondOfDay(pomidoroTimer.getTimePauseUntilEnd()).toString());
-            }
-        });
     }
 
     private void initializeSizeFrame() {
@@ -85,16 +94,14 @@ public class PomidoroFrame extends JFrame {
     }
 
     private void createButtonPanel() {
-        JButton addTask = new JButton(new ImageIcon("src\\main\\resources\\img\\add.png"));
-        addTask.setText("Добавить задачу");
+        addTask = new JButton("Добавить задачу");
         addTask.addActionListener(e -> {
             AddTaskDialog dialogFrame = new AddTaskDialog(PomidoroFrame.this,"Добавление задачи", controller);
             dialogFrame.setVisible(true);
             if(dialogFrame.userActionsIsSuccessful()) updateTaskTable();
         });
 
-        JButton editTask = new JButton(new ImageIcon("src\\main\\resources\\img\\edit.png"));
-        editTask.setText("Редактировать задачу");
+        editTask = new JButton("Редактировать задачу");
         editTask.addActionListener(e -> {
             EditTaskDialog dialog = new EditTaskDialog(PomidoroFrame.this,
                     "Редактирование задачи", controller, table.getTask(taskTable.getSelectedRow()));
@@ -102,8 +109,7 @@ public class PomidoroFrame extends JFrame {
             if(dialog.userActionsIsSuccessful()) updateTaskTable();
         });
 
-        JButton closeTask = new JButton(new ImageIcon("src\\main\\resources\\img\\close.png"));
-        closeTask.setText("Закрыть задачу");
+        closeTask = new JButton("Закрыть задачу");
         closeTask.addActionListener(e -> {
             CloseTaskDialog dialog = new CloseTaskDialog(PomidoroFrame.this,
                     "Закрытие задачи", controller, table.getTask(taskTable.getSelectedRow()));
@@ -111,8 +117,7 @@ public class PomidoroFrame extends JFrame {
             if(dialog.userActionsIsSuccessful()) updateTaskTable();
         });
 
-        JButton deleteTask = new JButton(new ImageIcon("src\\main\\resources\\img\\delete.png"));
-        deleteTask.setText("Удалить задачу");
+        deleteTask = new JButton("Удалить задачу");
         deleteTask.addActionListener(e -> {
             DeleteTaskDialog dialog = new DeleteTaskDialog(PomidoroFrame.this,
                     "Удаление задачи", controller, table.getTask(taskTable.getSelectedRow()));
@@ -120,65 +125,40 @@ public class PomidoroFrame extends JFrame {
             if(dialog.userActionsIsSuccessful()) updateTaskTable();
         });
 
-        JButton showAutoTask = new JButton(new ImageIcon("src\\main\\resources\\img\\auto.png"));
-        showAutoTask.setText("Авто-задачи");
+        showAutoTask = new JButton("Авто-задачи");
         showAutoTask.addActionListener(e -> {
             AutoTaskFrame autoTaskFrame = new AutoTaskFrame(PomidoroFrame.this, controller);
             autoTaskFrame.setVisible(true);
         });
 
-        JButton showCloseTask = new JButton(new ImageIcon("src\\main\\resources\\img\\closeTask.png"));
-        showCloseTask.setText("Закрытые задачи");
+        showCloseTask = new JButton("Закрытые задачи");
         showCloseTask.addActionListener(e -> {
             CloseTaskFrame closeTaskFrame = new CloseTaskFrame(PomidoroFrame.this, controller);
             closeTaskFrame.setVisible(true);
         });
 
-        timeField = new JTextField();
-        timeField.setEnabled(false);
-        timeField.setDisabledTextColor(Color.RED);
-
-        JButton startWork = new JButton(new ImageIcon("src\\main\\resources\\img\\work.png"));
-        startWork.setText("Работать над задачей");
+        startWork = new JButton("Работать над задачей");
         startWork.addActionListener((ActionEvent e) -> {
-            new Thread(() -> {
-                taskForWork = table.getTask(taskTable.getSelectedRow());
-                if(taskForWork != null) {
-                    StartWorkDialog dialog = new StartWorkDialog(PomidoroFrame.this, "Начать работу",
-                            controller, taskForWork, timer);
-                    dialog.setVisible(true);
-                    if(dialog.userActionsIsSuccessful()) {
-                        addTask.setEnabled(false);
-                        editTask.setEnabled(false);
-                        closeTask.setEnabled(false);
-                        deleteTask.setEnabled(false);
-                        startWork.setEnabled(false);
-                        showAutoTask.setEnabled(false);
-                        showCloseTask.setEnabled(false);
-                    }
-                }
-            }).start();
+            taskForWork = table.getTask(taskTable.getSelectedRow());
+            if(taskForWork != null) {
+                StartWorkDialog dialog = new StartWorkDialog(PomidoroFrame.this, "Начать работу", taskForWork, thread);
+                dialog.setVisible(true);
+                if(dialog.userActionsIsSuccessful()) makeButtonsActive(false);
+            }
         });
 
-        JButton endWork = new JButton(new ImageIcon("src\\main\\resources\\img\\stop.png"));
-        endWork.setText("Остановить работу");
+        endWork = new JButton("Остановить работу");
         endWork.addActionListener(e -> {
             EndWorkDialog dialog = new EndWorkDialog(PomidoroFrame.this, "Завершить работу",
-                    controller, taskForWork, pomidoroTimer, timer);
+                    controller, taskForWork, pomidoroTimer, thread);
             dialog.setVisible(true);
             if(dialog.userActionsIsSuccessful()) {
                 updateTaskTable();
-                addTask.setEnabled(true);
-                editTask.setEnabled(true);
-                closeTask.setEnabled(true);
-                deleteTask.setEnabled(true);
-                startWork.setEnabled(true);
-                showAutoTask.setEnabled(true);
-                showCloseTask.setEnabled(true);
+                makeButtonsActive(true);
+                taskForWork = null;
             }
             timeField.setText("");
         });
-
 
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridLayout(AMOUNT_BUTTONS, AMOUNT_COLUMNS));
@@ -217,5 +197,49 @@ public class PomidoroFrame extends JFrame {
         flowLayoutButtonPanel.add(buttonPanel);
         add(flowLayoutButtonPanel, BorderLayout.EAST);
         add(new JScrollPane(taskTable), BorderLayout.CENTER);
+    }
+
+    private void makeButtonsActive(boolean isActive) {
+        addTask.setEnabled(isActive);
+        editTask.setEnabled(isActive);
+        closeTask.setEnabled(isActive);
+        deleteTask.setEnabled(isActive);
+        startWork.setEnabled(isActive);
+        showAutoTask.setEnabled(isActive);
+        showCloseTask.setEnabled(isActive);
+    }
+
+    @Override
+    public synchronized void addWindowListener(WindowListener l) {
+        super.addWindowListener(new SaveListener());
+    }
+
+    private class SaveListener implements WindowListener {
+        @Override
+        public void windowClosing(WindowEvent e) {
+            Rectangle frameBounds = getBounds();
+            Properties properties = new Properties();
+            properties.setProperty("xPos", String.valueOf(frameBounds.x));
+            properties.setProperty("yPos", String.valueOf(frameBounds.y));
+            properties.setProperty("width", String.valueOf(frameBounds.width));
+            properties.setProperty("height", String.valueOf(frameBounds.height));
+
+            try {
+                FileOutputStream output = new FileOutputStream(
+                        System.getProperty("user.home") + File.separator + "pomidoro.properties");
+                properties.store(output, "Saved settings");
+                output.close();
+            } catch(Exception exc) {
+                exc.printStackTrace();
+            }
+            System.exit(0);
+        }
+
+        public void windowOpened(WindowEvent e) {}
+        public void windowClosed(WindowEvent e) {}
+        public void windowIconified(WindowEvent e) {}
+        public void windowDeiconified(WindowEvent e) {}
+        public void windowActivated(WindowEvent e) {}
+        public void windowDeactivated(WindowEvent e) {}
     }
 }

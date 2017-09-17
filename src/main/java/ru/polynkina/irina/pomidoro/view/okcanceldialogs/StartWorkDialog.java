@@ -1,24 +1,21 @@
 package ru.polynkina.irina.pomidoro.view.okcanceldialogs;
 
-import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.model.Task;
 
 import javax.swing.*;
 
 public class StartWorkDialog extends OkCancelDialog {
 
-    private Controller controller;
-    private Timer timer;
+    private Thread thread;
 
-    public StartWorkDialog(JFrame owner, String name, Controller controller, Task task, Timer timer) {
+    public StartWorkDialog(JFrame owner, String name, Task task, Thread thread) {
         super(owner, name, task);
-        this.controller = controller;
-        this.timer = timer;
+        this.thread = thread;
     }
 
     @Override
     public void okAction() {
-        timer.start();
+        thread.start();
     }
 
     @Override

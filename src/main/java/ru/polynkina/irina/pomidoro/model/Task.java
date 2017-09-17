@@ -48,12 +48,24 @@ public class Task {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Priority getPriority() {
         return priority;
     }
 
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
     public GenerationType getType() {
         return type;
+    }
+
+    public void setType(GenerationType type) {
+        this.type = type;
     }
 
     public LocalDate getStartDay() {
@@ -106,5 +118,33 @@ public class Task {
                 ", endDay=" + endDay +
                 ", timeWork=" + workTime +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+
+        Task task = (Task) o;
+
+        if(id != task.id) return false;
+        if(description != null ? !description.equals(task.description) : task.description != null) return false;
+        if(priority != task.priority) return false;
+        if(type != task.type) return false;
+        if(startDay != null ? !startDay.equals(task.startDay) : task.startDay != null) return false;
+        if(endDay != null ? !endDay.equals(task.endDay) : task.endDay != null) return false;
+        return workTime != null ? workTime.equals(task.workTime) : task.workTime == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (priority != null ? priority.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (startDay != null ? startDay.hashCode() : 0);
+        result = 31 * result + (endDay != null ? endDay.hashCode() : 0);
+        result = 31 * result + (workTime != null ? workTime.hashCode() : 0);
+        return result;
     }
 }

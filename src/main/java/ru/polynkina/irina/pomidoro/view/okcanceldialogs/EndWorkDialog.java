@@ -11,20 +11,21 @@ public class EndWorkDialog extends OkCancelDialog {
 
     private Controller controller;
     private PomidoroTimer pomidoroTimer;
-    private Timer timer;
+    private Thread thread;
     private Task task;
 
-    public EndWorkDialog(JFrame owner, String name, Controller controller, Task task, PomidoroTimer pomidoroTimer, Timer timer) {
+    public EndWorkDialog(JFrame owner, String name, Controller controller,
+                         Task task, PomidoroTimer pomidoroTimer, Thread thread) {
         super(owner, name, task);
         this.controller = controller;
         this.task = task;
         this.pomidoroTimer = pomidoroTimer;
-        this.timer = timer;
+        this.thread = thread;
     }
 
     @Override
     public void okAction() {
-        timer.stop();
+        thread.interrupt();
         task.addWorkTime(LocalTime.ofSecondOfDay(pomidoroTimer.getAllTimeWork()));
         controller.updateWorkTime(task);
         pomidoroTimer.reset();
@@ -35,6 +36,6 @@ public class EndWorkDialog extends OkCancelDialog {
 
     @Override
     public String setActionDescription() {
-        return "хотите завершить работу над задачей";
+        return "завершить работу над задачей";
     }
 }
