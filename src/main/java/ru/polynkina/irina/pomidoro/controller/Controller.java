@@ -1,6 +1,5 @@
 package ru.polynkina.irina.pomidoro.controller;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import ru.polynkina.irina.pomidoro.model.GenerationType;
@@ -21,7 +20,6 @@ public class Controller {
 
     public Controller(DBManager dbManager) {
         this.dbManager = dbManager;
-        LOGGER.setLevel(Level.INFO);
     }
 
     public void addTask(Task task) {
@@ -63,14 +61,18 @@ public class Controller {
             "' WHERE id = " + task.getId());
             LOGGER.info("id=" + task.getId() + " new values: " + task);
 
-            resultSet = dbManager.executeQuery("SELECT type FROM task WHERE id = " + task.getId());
-            resultSet.next();
-            GenerationType oldType = GenerationType.valueOfEnum(resultSet.getString(1));
-            if(oldType != task.getType()) {
-                dbManager.executeUpdate("DELETE FROM active_task WHERE id_task = " + task.getId());
-                LOGGER.info("id=" + task.getId() + " deleting from the active_task table");
-                dbManager.executeUpdate("INSERT INTO auto_task (id_task) VALUES(" + task.getId() + ")");
-                LOGGER.info("id=" + task.getId() + " inserting into the auto_task table");
+            if(!oldTask.getType().equals(task.getType())) {
+                if(task.getType().equals(GenerationType.ONCE)) {
+                    dbManager.executeUpdate("DELETE FROM auto_task WHERE id_task = " + task.getId());
+                    LOGGER.info("id=" + task.getId() + " deleting from the auto_task table");
+                    dbManager.executeUpdate("INSERT INTO active_task (id_task) VALUES(" + task.getId() + ")");
+                    LOGGER.info("id=" + task.getId() + " inserting into the active_task table");
+                } else {
+                    dbManager.executeUpdate("DELETE FROM active_task WHERE id_task = " + task.getId());
+                    LOGGER.info("id=" + task.getId() + " deleting from the active_task table");
+                    dbManager.executeUpdate("INSERT INTO auto_task (id_task) VALUES(" + task.getId() + ")");
+                    LOGGER.info("id=" + task.getId() + " inserting into the auto_task table");
+                }
             }
             resultSet.close();
         } catch(Exception exc) {
@@ -184,9 +186,9 @@ public class Controller {
                 int idTask = resultSet.getInt(1);
                 dbManager.executeUpdate("INSERT INTO active_task (id_task) VALUES(" + idTask + ")");
                 LOGGER.info("id=" + idTask + " inserting into the active_task table");
-                ResultSet typeTask = dbManager.executeQuery("SELECT type FROM task WHERE id = " + idTask);
-                typeTask.next();
-                GenerationType type = GenerationType.valueOfEnum(typeTask.getString(1));
+                resultSet = dbManager.executeQuery("SELECT type FROM task WHERE id = " + idTask);
+                resultSet.next();
+                GenerationType type = GenerationType.valueOfEnum(resultSet.getString(1));
                 LocalDate nextDate = LocalDate.now();
                 switch(type) {
                     case EVERY_DAY: nextDate = nextDate.plusDays(1); break;
@@ -195,7 +197,6 @@ public class Controller {
                 }
                 dbManager.executeUpdate("UPDATE task SET start_date = '" + nextDate + "' WHERE id = " + idTask);
                 LOGGER.info("id=" + idTask + " set start_date = " + nextDate);
-                typeTask.close();
             }
             resultSet.close();
         } catch(Exception exc) {

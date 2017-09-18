@@ -67,6 +67,30 @@ public class ControllerTest {
         task.setPriority(Priority.C);
         task.setType(GenerationType.EVERY_DAY);
         controller.updateTask(task);
+        resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task.getId());
+        Assert.assertFalse(resultSet.next());
+        resultSet = dbManager.executeQuery("SELECT * FROM auto_task WHERE id_task = " + task.getId());
+        Assert.assertTrue(resultSet.next());
+        List<Task> taskList = controller.selectAutoTask();
+        Assert.assertTrue(taskList.size() == 1);
+        Assert.assertTrue(taskList.get(0).equals(task));
+        controller.deleteTask(task);
+    }
+
+    @Test
+    public void testUpdateAutoTask() throws SQLException {
+        Task task = new Task(1,"testAddTask", Priority.A, GenerationType.EVERY_DAY,
+                LocalDate.now(), LocalDate.now(), LocalTime.of(23, 15, 56));
+        controller.addTask(task);
+        task.setId(getMaxIdFromTaskTable());
+        task.setDescription("testUpdateAutoTask");
+        task.setPriority(Priority.C);
+        task.setType(GenerationType.ONCE);
+        controller.updateTask(task);
+        resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task.getId());
+        Assert.assertTrue(resultSet.next());
+        resultSet = dbManager.executeQuery("SELECT * FROM auto_task WHERE id_task = " + task.getId());
+        Assert.assertFalse(resultSet.next());
         List<Task> taskList = controller.selectActiveTask();
         Assert.assertTrue(taskList.size() == 1);
         Assert.assertTrue(taskList.get(0).equals(task));
@@ -99,6 +123,7 @@ public class ControllerTest {
         Assert.assertFalse(resultSet.next());
         resultSet = dbManager.executeQuery("SELECT * FROM close_task WHERE id_task = " + task.getId());
         Assert.assertTrue(resultSet.next());
+        dbManager.executeUpdate("DELETE FROM close_task WHERE id_task = " + task.getId());
     }
 
     @Test

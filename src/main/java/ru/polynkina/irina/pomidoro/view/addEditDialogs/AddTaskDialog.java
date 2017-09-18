@@ -1,4 +1,4 @@
-package ru.polynkina.irina.pomidoro.view.addeditdialogs;
+package ru.polynkina.irina.pomidoro.view.addEditDialogs;
 
 import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.model.GenerationType;

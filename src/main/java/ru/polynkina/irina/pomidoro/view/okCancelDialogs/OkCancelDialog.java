@@ -1,4 +1,4 @@
-package ru.polynkina.irina.pomidoro.view.okcanceldialogs;
+package ru.polynkina.irina.pomidoro.view.okCancelDialogs;
 
 import ru.polynkina.irina.pomidoro.model.Task;
 

@@ -1,26 +1,20 @@
 package ru.polynkina.irina.pomidoro.view;
 
 import ru.polynkina.irina.pomidoro.controller.Controller;
-import ru.polynkina.irina.pomidoro.view.tasktable.TaskTable;
+import ru.polynkina.irina.pomidoro.view.taskTable.TaskTable;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class CloseTaskFrame extends JDialog {
 
-    private int widthFrame;
-    private JTable taskTable;
-
     public CloseTaskFrame(JFrame owner, Controller controller) {
         super(owner, "Закрытые задачи", true);
-
-        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-        widthFrame = size.width / 2;
-
         setBounds(owner.getX(), owner.getY(), owner.getWidth(), owner.getHeight());
+        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 
-        taskTable = new JTable(new TaskTable(controller.selectCloseTask()));
-        taskTable.getColumnModel().getColumn(0).setPreferredWidth(widthFrame / 2);
+        JTable taskTable = new JTable(new TaskTable(controller.selectCloseTask()));
+        taskTable.getColumnModel().getColumn(0).setPreferredWidth(size.width / 4);
         add(new JScrollPane(taskTable));
     }
 }

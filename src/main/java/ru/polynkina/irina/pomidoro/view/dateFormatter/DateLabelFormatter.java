@@ -1,4 +1,4 @@
-package ru.polynkina.irina.pomidoro.view.dateformatter;
+package ru.polynkina.irina.pomidoro.view.dateFormatter;
 
 import javax.swing.*;
 import java.text.ParseException;

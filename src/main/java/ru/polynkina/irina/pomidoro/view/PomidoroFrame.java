@@ -3,13 +3,13 @@ package ru.polynkina.irina.pomidoro.view;
 import ru.polynkina.irina.pomidoro.PomidoroTimer;
 import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.model.Task;
-import ru.polynkina.irina.pomidoro.view.addeditdialogs.AddTaskDialog;
-import ru.polynkina.irina.pomidoro.view.addeditdialogs.EditTaskDialog;
-import ru.polynkina.irina.pomidoro.view.okcanceldialogs.CloseTaskDialog;
-import ru.polynkina.irina.pomidoro.view.okcanceldialogs.DeleteTaskDialog;
-import ru.polynkina.irina.pomidoro.view.okcanceldialogs.EndWorkDialog;
-import ru.polynkina.irina.pomidoro.view.okcanceldialogs.StartWorkDialog;
-import ru.polynkina.irina.pomidoro.view.tasktable.TaskTable;
+import ru.polynkina.irina.pomidoro.view.addEditDialogs.AddTaskDialog;
+import ru.polynkina.irina.pomidoro.view.addEditDialogs.EditTaskDialog;
+import ru.polynkina.irina.pomidoro.view.okCancelDialogs.CloseTaskDialog;
+import ru.polynkina.irina.pomidoro.view.okCancelDialogs.DeleteTaskDialog;
+import ru.polynkina.irina.pomidoro.view.okCancelDialogs.EndWorkDialog;
+import ru.polynkina.irina.pomidoro.view.okCancelDialogs.StartWorkDialog;
+import ru.polynkina.irina.pomidoro.view.taskTable.TaskTable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +23,7 @@ import java.util.Properties;
 
 public class PomidoroFrame extends JFrame {
 
-    private static final int AMOUNT_BUTTONS = 9;
+    private static final int AMOUNT_BUTTONS = 10;
     private static final int AMOUNT_COLUMNS = 1;
 
     private Controller controller;
@@ -44,6 +44,7 @@ public class PomidoroFrame extends JFrame {
     private JButton endWork;
     private JButton showAutoTask;
     private JButton showCloseTask;
+    private JButton version;
 
     private PomidoroTimer pomidoroTimer;
     private JTextField timeField;
@@ -59,7 +60,6 @@ public class PomidoroFrame extends JFrame {
         timeField.setEnabled(false);
         timeField.setDisabledTextColor(Color.BLUE);
         pomidoroTimer = new PomidoroTimer(timeField);
-        thread = new Thread(pomidoroTimer);
 
         initializeSizeFrame();
         createButtonPanel();
@@ -137,10 +137,21 @@ public class PomidoroFrame extends JFrame {
             closeTaskFrame.setVisible(true);
         });
 
+        version = new JButton("О программе");
+        version.addActionListener(e -> {
+            InfoFrame infoFrame = new InfoFrame(null, "О программе",
+                    "version: beta" +
+                            "<br>release: 18/09/2017" +
+                            "<br>author: Irina Polynkina" +
+                            "<br>email: irina.polynkina.dev@yandex.ru");
+            infoFrame.setVisible(true);
+        });
+
         startWork = new JButton("Работать над задачей");
         startWork.addActionListener((ActionEvent e) -> {
             taskForWork = table.getTask(taskTable.getSelectedRow());
             if(taskForWork != null) {
+                thread = new Thread(pomidoroTimer);
                 StartWorkDialog dialog = new StartWorkDialog(PomidoroFrame.this, "Начать работу", taskForWork, thread);
                 dialog.setVisible(true);
                 if(dialog.userActionsIsSuccessful()) makeButtonsActive(false);
@@ -168,6 +179,7 @@ public class PomidoroFrame extends JFrame {
         buttonPanel.add(deleteTask);
         buttonPanel.add(showAutoTask);
         buttonPanel.add(showCloseTask);
+        buttonPanel.add(version);
         buttonPanel.add(startWork);
         buttonPanel.add(endWork);
         buttonPanel.add(timeField);
@@ -205,6 +217,7 @@ public class PomidoroFrame extends JFrame {
         closeTask.setEnabled(isActive);
         deleteTask.setEnabled(isActive);
         startWork.setEnabled(isActive);
+        version.setEnabled(isActive);
         showAutoTask.setEnabled(isActive);
         showCloseTask.setEnabled(isActive);
     }

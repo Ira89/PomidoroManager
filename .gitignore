@@ -12,6 +12,7 @@
 *.tar.gz
 *.rar
 
+# Catalogs
 /.idea/
 /dbtest/
 /dbpomidoro/

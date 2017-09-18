@@ -1,4 +1,4 @@
-package ru.polynkina.irina.pomidoro.view.tasktable;
+package ru.polynkina.irina.pomidoro.view.taskTable;
 
 import ru.polynkina.irina.pomidoro.model.Task;
 

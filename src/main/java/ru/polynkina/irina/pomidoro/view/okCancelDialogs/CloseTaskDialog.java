@@ -1,16 +1,16 @@
-package ru.polynkina.irina.pomidoro.view.okcanceldialogs;
+package ru.polynkina.irina.pomidoro.view.okCancelDialogs;
 
 import ru.polynkina.irina.pomidoro.controller.Controller;
 import ru.polynkina.irina.pomidoro.model.Task;
 
 import javax.swing.*;
 
-public class DeleteTaskDialog extends OkCancelDialog {
+public class CloseTaskDialog extends OkCancelDialog {
 
     private Controller controller;
     private Task task;
 
-    public DeleteTaskDialog(JFrame owner, String name, Controller controller, Task task) {
+    public CloseTaskDialog(JFrame owner, String name, Controller controller, Task task) {
         super(owner, name, task);
         this.controller = controller;
         this.task = task;
@@ -18,7 +18,7 @@ public class DeleteTaskDialog extends OkCancelDialog {
 
     @Override
     public void okAction() {
-        controller.deleteTask(task);
+        controller.closeTask(task);
     }
 
     @Override
@@ -26,6 +26,6 @@ public class DeleteTaskDialog extends OkCancelDialog {
 
     @Override
     public String setActionDescription() {
-        return "удалить задачу";
+        return "завершить работу над задачей";
     }
 }

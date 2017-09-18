@@ -1,4 +1,4 @@
-package ru.polynkina.irina.pomidoro.view.addeditdialogs;
+package ru.polynkina.irina.pomidoro.view.addEditDialogs;
 
 import org.jdatepicker.impl.JDatePanelImpl;
 import org.jdatepicker.impl.JDatePickerImpl;
@@ -6,7 +6,7 @@ import org.jdatepicker.impl.UtilDateModel;
 import ru.polynkina.irina.pomidoro.model.GenerationType;
 import ru.polynkina.irina.pomidoro.model.Priority;
 import ru.polynkina.irina.pomidoro.model.Task;
-import ru.polynkina.irina.pomidoro.view.dateformatter.DateLabelFormatter;
+import ru.polynkina.irina.pomidoro.view.dateFormatter.DateLabelFormatter;
 
 import javax.swing.*;
 import java.awt.*;

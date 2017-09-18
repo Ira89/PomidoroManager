@@ -28,8 +28,8 @@ public class PomidoroTimer implements Runnable {
 
     public PomidoroTimer(JTextField textField) {
         isTimeWork = true;
-        pause = new InfoFrame(null, "Перерыв!");
-        work = new InfoFrame(null, "За работу!");
+        pause = new InfoFrame(null, "Перерыв!", "Время сделать перерыв");
+        work = new InfoFrame(null, "За работу!", "Пора приступать к работе");
         this.textField = textField;
     }
 
@@ -48,29 +48,31 @@ public class PomidoroTimer implements Runnable {
 
     @Override
     public void run() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-            timeCurrentPause = (amountCyclesWork + amountCyclesPause) % 7 == 0 ? BIG_PAUSE_IN_SECONDS : SHORT_PAUSE_IN_SECONDS;
-            if(isTimeWork) {
-                if(timeWorkInSeconds++ == TASK_TIME_IN_SECONDS) {
-                    timeWorkInSeconds = 0;
-                    isTimeWork = false;
-                    ++amountCyclesWork;
-                    pause.setVisible(true);
+        while(!Thread.interrupted()) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+                timeCurrentPause = (amountCyclesWork + amountCyclesPause) % 7 == 0 ?
+                        BIG_PAUSE_IN_SECONDS : SHORT_PAUSE_IN_SECONDS;
+                if(isTimeWork) {
+                    if(timeWorkInSeconds++ == TASK_TIME_IN_SECONDS) {
+                        timeWorkInSeconds = 0;
+                        isTimeWork = false;
+                        ++amountCyclesWork;
+                        pause.setVisible(true);
+                    }
+                } else {
+                    if(timePauseInSeconds++ == timeCurrentPause) {
+                        timePauseInSeconds = 0;
+                        isTimeWork = true;
+                        ++amountCyclesPause;
+                        work.setVisible(true);
+                    }
                 }
-            } else {
-                if(timePauseInSeconds++ == timeCurrentPause) {
-                    timePauseInSeconds = 0;
-                    isTimeWork = true;
-                    ++amountCyclesPause;
-                    work.setVisible(true);
-                }
+            } catch(InterruptedException exc) {
+                Thread.currentThread().interrupt();
             }
-        } catch(InterruptedException exc) {
-            exc.printStackTrace();
-            System.exit(-1);
+            if(textField != null) writeInTextField();
         }
-        if(textField != null) writeInTextField();
     }
 
     private int getTimePauseUntilEnd() {
