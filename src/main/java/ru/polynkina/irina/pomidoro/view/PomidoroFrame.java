@@ -19,6 +19,7 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class PomidoroFrame extends JFrame {
@@ -245,6 +246,8 @@ public class PomidoroFrame extends JFrame {
             } catch(Exception exc) {
                 exc.printStackTrace();
             }
+
+            controller.closeDB();
             System.exit(0);
         }
 

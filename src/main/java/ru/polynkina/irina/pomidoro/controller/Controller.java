@@ -8,6 +8,7 @@ import ru.polynkina.irina.pomidoro.model.Task;
 import ru.polynkina.irina.pomidoro.db.DBManager;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while adding task" + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -76,7 +77,7 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while updating task" + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -101,7 +102,7 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while deleting task" + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -114,7 +115,7 @@ public class Controller {
             dbManager.executeUpdate("INSERT INTO close_task (id_task) VALUES(" + task.getId() + ")");
             LOGGER.info("id=" + task.getId() + " inserting into the close_task table");
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while closing task" + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -129,7 +130,7 @@ public class Controller {
             LOGGER.info("id=" + task.getId() + " new workTime: " + task.getWorkTime());
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while updating work task" + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -142,7 +143,7 @@ public class Controller {
             while(resultSet.next()) taskList.add(parseTask(resultSet));
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while selecting active task" + exc.getMessage());
             System.exit(-1);
         }
         return taskList;
@@ -156,7 +157,7 @@ public class Controller {
             while(resultSet.next()) taskList.add(parseTask(resultSet));
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while selecting close task" + exc.getMessage());
             System.exit(-1);
         }
         return taskList;
@@ -170,7 +171,7 @@ public class Controller {
             while(resultSet.next()) taskList.add(parseTask(resultSet));
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while selecting auto task" + exc.getMessage());
             System.exit(-1);
         }
         return taskList;
@@ -200,7 +201,7 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            exc.printStackTrace();
+            LOGGER.warn("error while generating task" + exc.getMessage());
             System.exit(-1);
         }
         LOGGER.info("ends auto-generation of tasks");
@@ -215,5 +216,14 @@ public class Controller {
         LocalDate endDate = LocalDate.parse(resultSet.getDate(6).toString());
         LocalTime time = LocalTime.parse(resultSet.getTime(7).toString());
         return new Task(id, description, priority, type, startDate, endDate, time);
+    }
+
+    public void closeDB() {
+        try {
+            dbManager.close();
+        } catch(SQLException exc) {
+            LOGGER.warn("could not close database connection " + exc.getMessage());
+        }
+
     }
 }
