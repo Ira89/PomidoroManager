@@ -156,7 +156,7 @@ public class ControllerTest {
     @Test
     public void testGenerateTask() throws SQLException {
         Task task = new Task(1,"testGenerateTask", Priority.A, GenerationType.EVERY_DAY,
-                LocalDate.now(), LocalDate.now(), LocalTime.of(23, 15, 56));
+                LocalDate.now().minusDays(1), LocalDate.of(9999, 12, 31), LocalTime.of(23, 15, 56));
         controller.addTask(task);
         task.setId(getMaxIdFromTaskTable());
         resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task.getId());

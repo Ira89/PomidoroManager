@@ -81,7 +81,7 @@ public abstract class AddEditDialog extends JDialog {
         Properties properties = new Properties();
         properties.put("text.today", "Сегодня");
         UtilDateModel endModel = new UtilDateModel();
-        endModel.setDate(LocalDate.now().getYear(), LocalDate.now().getMonthValue() - 1, LocalDate.now().getDayOfMonth());
+        endModel.setDate(LocalDate.now().getYear(), LocalDate.now().getMonthValue(), LocalDate.now().getDayOfMonth());
         endModel.setSelected(true);
         JDatePanelImpl endDatePanel = new JDatePanelImpl(endModel, properties);
         endDatePicker = new JDatePickerImpl(endDatePanel, new DateLabelFormatter());

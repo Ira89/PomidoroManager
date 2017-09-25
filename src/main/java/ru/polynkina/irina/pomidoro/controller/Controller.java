@@ -181,7 +181,7 @@ public class Controller {
         try {
             ResultSet resultSet = dbManager.executeQuery("SELECT task.id FROM task, auto_task " +
                     "WHERE task.id = auto_task.id_task " +
-                    "AND task.start_date = " + "'" + LocalDate.now() + "'");
+                    "AND task.start_date <= " + "'" + LocalDate.now() + "'");
             while(resultSet.next()) {
                 int idTask = resultSet.getInt(1);
                 dbManager.executeUpdate("INSERT INTO active_task (id_task) VALUES(" + idTask + ")");
