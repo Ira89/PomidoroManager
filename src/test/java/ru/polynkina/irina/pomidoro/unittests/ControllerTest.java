@@ -156,7 +156,7 @@ public class ControllerTest {
     @Test
     public void testGenerateTask() throws SQLException {
         Task task = new Task(1,"testGenerateTask", Priority.A, GenerationType.EVERY_DAY,
-                LocalDate.now(), LocalDate.now(), LocalTime.of(23, 15, 56));
+                LocalDate.now().minusDays(1), LocalDate.of(9999, 12, 31), LocalTime.of(23, 15, 56));
         controller.addTask(task);
         task.setId(getMaxIdFromTaskTable());
         resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task.getId());
@@ -165,5 +165,31 @@ public class ControllerTest {
         resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task.getId());
         Assert.assertTrue(resultSet.next());
         controller.deleteTask(task);
+    }
+
+    @Test
+    public void testGenerateMultiTasks() throws SQLException {
+        Task task1 = new Task(1,"testGenerateMultiTask1", Priority.A, GenerationType.EVERY_DAY,
+                LocalDate.now().minusDays(1), LocalDate.of(9999, 12, 31), LocalTime.of(23, 15, 56));
+        controller.addTask(task1);
+        task1.setId(getMaxIdFromTaskTable());
+
+        Task task2 = new Task(1,"testGenerateMultiTask2", Priority.A, GenerationType.EVERY_DAY,
+                LocalDate.now().minusDays(1), LocalDate.of(9999, 12, 31), LocalTime.of(23, 15, 56));
+        controller.addTask(task2);
+        task2.setId(getMaxIdFromTaskTable());
+
+        resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task1.getId());
+        Assert.assertFalse(resultSet.next());
+        resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task2.getId());
+        Assert.assertFalse(resultSet.next());
+
+        controller.generateAutoTasks();
+        resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task1.getId());
+        Assert.assertTrue(resultSet.next());
+        resultSet = dbManager.executeQuery("SELECT * FROM active_task WHERE id_task = " + task2.getId());
+        Assert.assertTrue(resultSet.next());
+        controller.deleteTask(task1);
+        controller.deleteTask(task2);
     }
 }

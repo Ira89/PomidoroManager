@@ -8,7 +8,7 @@ public class DBManager {
     private static final String url = "jdbc:derby:";
 
     private String dbName;
-    private Connection connection;
+    private static Connection connection;
 
     public DBManager(String dbName) {
         this.dbName = dbName;
@@ -98,5 +98,9 @@ public class DBManager {
     public ResultSet executeQuery(String sql) throws SQLException {
         Statement statement = connection.createStatement();
         return statement.executeQuery(sql);
+    }
+
+    public void close() throws SQLException {
+        connection.close();
     }
 }
