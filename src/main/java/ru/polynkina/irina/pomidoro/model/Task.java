@@ -81,6 +81,8 @@ public class Task {
     }
 
     public void addWorkTime(LocalTime time) {
+        workTime = workTime.plusHours(time.getHour());
+        workTime = workTime.plusMinutes(time.getMinute());
         workTime = workTime.plusSeconds(time.getSecond());
     }
 

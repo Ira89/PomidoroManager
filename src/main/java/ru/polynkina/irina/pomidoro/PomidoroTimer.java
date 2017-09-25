@@ -19,7 +19,6 @@ public class PomidoroTimer implements Runnable {
     private boolean isTimeWork;
 
     private int amountCyclesWork;
-    private int amountCyclesPause;
 
     private InfoFrame pause;
     private InfoFrame work;
@@ -39,7 +38,6 @@ public class PomidoroTimer implements Runnable {
         timePauseInSeconds = 0;
         timeCurrentPause = 0;
         amountCyclesWork = 0;
-        amountCyclesPause = 0;
     }
 
     public int getAllTimeWork() {
@@ -51,8 +49,8 @@ public class PomidoroTimer implements Runnable {
         while(!Thread.interrupted()) {
             try {
                 TimeUnit.SECONDS.sleep(1);
-                timeCurrentPause = (amountCyclesWork + amountCyclesPause) % 7 == 0 ?
-                        BIG_PAUSE_IN_SECONDS : SHORT_PAUSE_IN_SECONDS;
+                if(amountCyclesWork != 0 && amountCyclesWork % 4 == 0) timeCurrentPause = BIG_PAUSE_IN_SECONDS;
+                else timeCurrentPause = SHORT_PAUSE_IN_SECONDS;
                 if(isTimeWork) {
                     if(timeWorkInSeconds++ == TASK_TIME_IN_SECONDS) {
                         timeWorkInSeconds = 0;
@@ -64,7 +62,6 @@ public class PomidoroTimer implements Runnable {
                     if(timePauseInSeconds++ == timeCurrentPause) {
                         timePauseInSeconds = 0;
                         isTimeWork = true;
-                        ++amountCyclesPause;
                         work.setVisible(true);
                     }
                 }
@@ -76,7 +73,8 @@ public class PomidoroTimer implements Runnable {
     }
 
     private int getTimePauseUntilEnd() {
-        return timeCurrentPause - timePauseInSeconds;
+        int currentPause = (amountCyclesWork != 0 && amountCyclesWork % 4 == 0) ? BIG_PAUSE_IN_SECONDS : SHORT_PAUSE_IN_SECONDS;
+        return currentPause - timePauseInSeconds;
     }
 
     private int getTimeWorkUntilEnd() {
