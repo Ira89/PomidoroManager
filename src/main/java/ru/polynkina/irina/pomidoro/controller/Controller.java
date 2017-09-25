@@ -187,9 +187,10 @@ public class Controller {
                 int idTask = resultSet.getInt(1);
                 dbManager.executeUpdate("INSERT INTO active_task (id_task) VALUES(" + idTask + ")");
                 LOGGER.info("id=" + idTask + " inserting into the active_task table");
-                resultSet = dbManager.executeQuery("SELECT type FROM task WHERE id = " + idTask);
-                resultSet.next();
-                GenerationType type = GenerationType.valueOfEnum(resultSet.getString(1));
+                ResultSet resultType = dbManager.executeQuery("SELECT type FROM task WHERE id = " + idTask);
+                resultType.next();
+                GenerationType type = GenerationType.valueOfEnum(resultType.getString(1));
+                resultType.close();
                 LocalDate nextDate = LocalDate.now();
                 switch(type) {
                     case EVERY_DAY: nextDate = nextDate.plusDays(1); break;
