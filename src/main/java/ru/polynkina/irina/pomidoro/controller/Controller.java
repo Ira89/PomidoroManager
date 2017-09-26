@@ -6,6 +6,7 @@ import ru.polynkina.irina.pomidoro.model.GenerationType;
 import ru.polynkina.irina.pomidoro.model.Priority;
 import ru.polynkina.irina.pomidoro.model.Task;
 import ru.polynkina.irina.pomidoro.db.DBManager;
+import ru.polynkina.irina.pomidoro.view.InfoFrame;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,7 +45,7 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while adding task" + exc.getMessage());
+            LOGGER.warn("error while adding task " + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -77,7 +78,7 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while updating task" + exc.getMessage());
+            LOGGER.warn("error while updating task " + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -102,7 +103,7 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while deleting task" + exc.getMessage());
+            LOGGER.warn("error while deleting task " + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -115,7 +116,7 @@ public class Controller {
             dbManager.executeUpdate("INSERT INTO close_task (id_task) VALUES(" + task.getId() + ")");
             LOGGER.info("id=" + task.getId() + " inserting into the close_task table");
         } catch(Exception exc) {
-            LOGGER.warn("error while closing task" + exc.getMessage());
+            LOGGER.warn("error while closing task " + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -130,7 +131,7 @@ public class Controller {
             LOGGER.info("id=" + task.getId() + " new workTime: " + task.getWorkTime());
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while updating work task" + exc.getMessage());
+            LOGGER.warn("error while updating work task " + exc.getMessage());
             System.exit(-1);
         }
     }
@@ -143,7 +144,7 @@ public class Controller {
             while(resultSet.next()) taskList.add(parseTask(resultSet));
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while selecting active task" + exc.getMessage());
+            LOGGER.warn("error while selecting active task " + exc.getMessage());
             System.exit(-1);
         }
         return taskList;
@@ -157,7 +158,7 @@ public class Controller {
             while(resultSet.next()) taskList.add(parseTask(resultSet));
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while selecting close task" + exc.getMessage());
+            LOGGER.warn("error while selecting close task " + exc.getMessage());
             System.exit(-1);
         }
         return taskList;
@@ -171,7 +172,7 @@ public class Controller {
             while(resultSet.next()) taskList.add(parseTask(resultSet));
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while selecting auto task" + exc.getMessage());
+            LOGGER.warn("error while selecting auto task " + exc.getMessage());
             System.exit(-1);
         }
         return taskList;
@@ -202,10 +203,31 @@ public class Controller {
             }
             resultSet.close();
         } catch(Exception exc) {
-            LOGGER.warn("error while generating task" + exc.getMessage());
+            LOGGER.warn("error while generating task " + exc.getMessage());
             System.exit(-1);
         }
         LOGGER.info("ends auto-generation of tasks");
+    }
+
+    public void findOverdueTasks() {
+        LOGGER.info("starts find overdue tasks");
+        try {
+            ResultSet resultSet = dbManager.executeQuery("SELECT * FROM task, active_task " +
+                    "WHERE task.id = active_task.id_task " +
+                    "AND task.end_date < " + "'" + LocalDate.now() + "'");
+            while(resultSet.next()) {
+                Task task = parseTask(resultSet);
+                LOGGER.info("overdue task: " + task.getId() + " end_date: " + task.getEndDay());
+                InfoFrame frame = new InfoFrame(null, "Просроченная задача",
+                        "Внимание!!!<br>Задача " + task.getDescription() + " просрочена!!!");
+                frame.setAlwaysOnTop(true);
+                frame.setVisible(true);
+            }
+            resultSet.close();
+        } catch(Exception exc) {
+            LOGGER.warn("error while find overdue tasks " + exc.getMessage());
+        }
+        LOGGER.info("ends find overdue tasks");
     }
 
     private Task parseTask(ResultSet resultSet) throws Exception {
