@@ -13,6 +13,7 @@ public class Main {
         DBManager dbManager = new DBManager("dbpomidoro");
         Controller controller = new Controller(dbManager);
         controller.generateAutoTasks();
+        controller.findOverdueTasks();
         SwingUtilities.invokeLater(() -> new PomidoroFrame(controller));
     }
 }

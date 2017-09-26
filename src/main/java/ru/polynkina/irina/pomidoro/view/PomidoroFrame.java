@@ -194,6 +194,7 @@ public class PomidoroFrame extends JFrame {
     }
 
     private void updateTaskTable() {
+        controller.generateAutoTasks();
         table.refreshTable(controller.selectActiveTask());
         setDefaultSizeTable();
         taskTable.repaint();
