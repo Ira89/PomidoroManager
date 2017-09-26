@@ -12,6 +12,7 @@ import ru.polynkina.irina.pomidoro.view.okCancelDialogs.StartWorkDialog;
 import ru.polynkina.irina.pomidoro.view.taskTable.TaskTable;
 
 import javax.swing.*;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
@@ -19,7 +20,6 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.sql.SQLException;
 import java.util.Properties;
 
 public class PomidoroFrame extends JFrame {
@@ -189,6 +189,7 @@ public class PomidoroFrame extends JFrame {
     private void createTaskTable() {
         table = new TaskTable(controller.selectActiveTask());
         taskTable = new JTable(table);
+        taskTable.setRowSorter(new TableRowSorter<>(table));
         setDefaultSizeTable();
     }
 
