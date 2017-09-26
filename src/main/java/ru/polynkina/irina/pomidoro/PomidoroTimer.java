@@ -28,7 +28,9 @@ public class PomidoroTimer implements Runnable {
     public PomidoroTimer(JTextField textField) {
         isTimeWork = true;
         pause = new InfoFrame(null, "Перерыв!", "Время сделать перерыв");
+        pause.setAlwaysOnTop(true);
         work = new InfoFrame(null, "За работу!", "Пора приступать к работе");
+        work.setAlwaysOnTop(true);
         this.textField = textField;
     }
 
