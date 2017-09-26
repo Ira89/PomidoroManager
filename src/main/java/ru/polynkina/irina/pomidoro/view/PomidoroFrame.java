@@ -168,8 +168,8 @@ public class PomidoroFrame extends JFrame {
                 updateTaskTable();
                 makeButtonsActive(true);
                 taskForWork = null;
+                timeField.setText("");
             }
-            timeField.setText("");
         });
 
         buttonPanel = new JPanel();
