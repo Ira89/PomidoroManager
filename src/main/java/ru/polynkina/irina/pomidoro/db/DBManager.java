@@ -31,6 +31,11 @@ public class DBManager {
                 exc.printStackTrace();
             }
         }
+        try {
+            alterOldTable();
+        } catch(SQLException exc) {
+            exc.printStackTrace();
+        }
     }
 
     private boolean dbExist() {
@@ -47,13 +52,20 @@ public class DBManager {
 
     private boolean tablesExist() {
         boolean tableExist = false;
-        try {
-            ResultSet resultSet = executeQuery("SELECT * FROM task ORDER BY priority");
+        try (ResultSet resultSet = executeQuery("SELECT * FROM task ORDER BY priority")) {
             if(resultSet.next()) tableExist = true;
         } catch(Exception exc) {
             // Ignore it. Tables does not exist.
         }
         return tableExist;
+    }
+
+    private void alterOldTable() throws SQLException {
+        try {
+            executeQuery("SELECT amount_days_work FROM task");
+        } catch(SQLException exc) {
+            executeUpdate("ALTER TABLE task ADD COLUMN amount_days_work INTEGER DEFAULT 0");
+        }
     }
 
     private void createTaskTable() throws SQLException {

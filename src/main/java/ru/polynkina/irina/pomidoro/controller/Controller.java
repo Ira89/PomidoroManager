@@ -27,7 +27,7 @@ public class Controller {
     public void addTask(Task task) {
         try {
             dbManager.executeUpdate("INSERT INTO task (" +
-                    "description, priority, type, start_date, end_date, time_work) " +
+                    "description, priority, type, start_date, end_date, time_work, amount_days_work) " +
                     "VALUES(" + task.getTextForSQL() + ")");
 
             ResultSet resultSet = dbManager.executeQuery("SELECT MAX(id) FROM task");
@@ -60,7 +60,7 @@ public class Controller {
             dbManager.executeUpdate("UPDATE task SET description = '" + task.getDescription() +
             "', priority = '" + task.getPriority() + "', type = '" + task.getType() +
             "', start_date = '" + task.getStartDay() + "', end_date = '" + task.getEndDay() +
-            "' WHERE id = " + task.getId());
+            "', amount_days_work = " + task.getAmountDaysWork() + " WHERE id = " + task.getId());
             LOGGER.info("id=" + task.getId() + " new values: " + task);
 
             if(!oldTask.getType().equals(task.getType())) {
@@ -127,8 +127,10 @@ public class Controller {
             resultSet.next();
             Task taskOld = parseTask(resultSet);
             LOGGER.info("update time: " + taskOld);
-            dbManager.executeUpdate("UPDATE task SET time_work = '" + task.getWorkTime() + "' WHERE id = " + task.getId());
-            LOGGER.info("id=" + task.getId() + " new workTime: " + task.getWorkTime());
+            dbManager.executeUpdate("UPDATE task SET time_work = '" + task.getWorkTime() +
+                    "', amount_days_work = " + task.getAmountDaysWork() + " WHERE id = " + task.getId());
+            LOGGER.info("id=" + task.getId() + " new workTime: " + task.getWorkTime() +
+                    " new amount_days_work = " + task.getAmountDaysWork());
             resultSet.close();
         } catch(Exception exc) {
             LOGGER.warn("error while updating work task " + exc.getMessage());
@@ -238,7 +240,8 @@ public class Controller {
         LocalDate startDate = LocalDate.parse(resultSet.getDate(5).toString());
         LocalDate endDate = LocalDate.parse(resultSet.getDate(6).toString());
         LocalTime time = LocalTime.parse(resultSet.getTime(7).toString());
-        return new Task(id, description, priority, type, startDate, endDate, time);
+        int amountDaysWork = resultSet.getInt(8);
+        return new Task(id, description, priority, type, startDate, endDate, time, amountDaysWork);
     }
 
     public void closeDB() {

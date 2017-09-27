@@ -69,6 +69,7 @@ public class PomidoroTimer implements Runnable {
                 }
             } catch(InterruptedException exc) {
                 Thread.currentThread().interrupt();
+                textField.setText("");
             }
             if(textField != null) writeInTextField();
         }

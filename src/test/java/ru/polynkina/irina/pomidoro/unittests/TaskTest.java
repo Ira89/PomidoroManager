@@ -27,8 +27,10 @@ public class TaskTest {
 
         task.addWorkTime(LocalTime.of(5, 50, 35));
         Assert.assertTrue(task.getWorkTime().equals(LocalTime.of(21, 3, 10)));
+        Assert.assertTrue(task.getAmountDaysWork() == 0);
 
         task.addWorkTime(LocalTime.of(3, 0, 0));
         Assert.assertTrue(task.getWorkTime().equals(LocalTime.of(0, 3, 10)));
+        Assert.assertTrue(task.getAmountDaysWork() == 1);
     }
 }

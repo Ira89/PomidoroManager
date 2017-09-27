@@ -12,9 +12,10 @@ public class Task {
     private LocalDate startDay;
     private LocalDate endDay;
     private LocalTime workTime;
+    private int amountDaysWork;
 
     public Task(int id, String description, Priority priority, GenerationType type,
-                        LocalDate startDay, LocalDate endDay, LocalTime timeWork) {
+                        LocalDate startDay, LocalDate endDay, LocalTime timeWork, int amountDaysWork) {
         this.id = id;
         this.description = description.trim();
         this.priority = priority;
@@ -22,6 +23,12 @@ public class Task {
         this.startDay = startDay;
         this.endDay = endDay;
         this.workTime = timeWork;
+        this.amountDaysWork = amountDaysWork;
+    }
+
+    public Task(int id, String description, Priority priority, GenerationType type,
+                LocalDate startDay, LocalDate endDay, LocalTime timeWork) {
+        this(id, description, priority, type, startDay, endDay, timeWork, 0);
     }
 
     public Task(int id, String description, Priority priority, GenerationType type, LocalDate startDay, LocalDate endDay) {
@@ -29,7 +36,7 @@ public class Task {
     }
 
     public Task(int id, String description, Priority priority, GenerationType type, LocalDate endDay) {
-        this(id, description, priority, type, LocalDate.now(), endDay, LocalTime.of(0, 0, 0));
+        this(id, description, priority, type, LocalDate.now(), endDay);
     }
 
     public Task(String description, Priority priority, GenerationType type, LocalDate endDay) {
@@ -80,32 +87,41 @@ public class Task {
         return workTime;
     }
 
+    public int getAmountDaysWork() {
+        return amountDaysWork;
+    }
+
     public void addWorkTime(LocalTime time) {
+        LocalTime currTime = LocalTime.of(workTime.getHour(), workTime.getMinute(), workTime.getSecond());
         workTime = workTime.plusHours(time.getHour());
         workTime = workTime.plusMinutes(time.getMinute());
         workTime = workTime.plusSeconds(time.getSecond());
+        if(currTime.isAfter(workTime)) ++amountDaysWork;
     }
 
     public String getTextForSQL() {
-        final String sign = "'";
         final String delimiter = "','";
 
-        String SQLText = sign;
+        String SQLText = "'";
         SQLText += description + delimiter;
         SQLText += priority + delimiter;
         SQLText += type + delimiter;
         SQLText += startDay + delimiter;
         SQLText += endDay + delimiter;
-        SQLText += workTime + sign;
+        SQLText += workTime + "',";
+        SQLText += amountDaysWork;
         return SQLText;
     }
 
     public String[] getInfo() {
+        String time;
+        if(amountDaysWork == 0) time = workTime.toString();
+        else time = amountDaysWork + " дн " + workTime.toString();
         return new String[] {
                 description,
                 priority.name(),
                 endDay.toString(),
-                workTime.toString()
+                time
         };
     }
 
@@ -119,6 +135,7 @@ public class Task {
                 ", startDay=" + startDay +
                 ", endDay=" + endDay +
                 ", timeWork=" + workTime +
+                ", amountDaysWork=" + amountDaysWork +
                 '}';
     }
 
@@ -130,6 +147,7 @@ public class Task {
         Task task = (Task) o;
 
         if(id != task.id) return false;
+        if(amountDaysWork != task.amountDaysWork) return false;
         if(description != null ? !description.equals(task.description) : task.description != null) return false;
         if(priority != task.priority) return false;
         if(type != task.type) return false;
@@ -146,6 +164,7 @@ public class Task {
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (startDay != null ? startDay.hashCode() : 0);
         result = 31 * result + (endDay != null ? endDay.hashCode() : 0);
+        result = 31 * result + amountDaysWork;
         result = 31 * result + (workTime != null ? workTime.hashCode() : 0);
         return result;
     }
