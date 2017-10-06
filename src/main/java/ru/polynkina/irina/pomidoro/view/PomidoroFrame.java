@@ -141,8 +141,8 @@ public class PomidoroFrame extends JFrame {
         version = new JButton("О программе");
         version.addActionListener(e -> {
             InfoFrame infoFrame = new InfoFrame(null, "О программе",
-                    "version: beta" +
-                            "<br>release: 18/09/2017" +
+                    "version: 1.0.0" +
+                            "<br>release: 06/10/2017" +
                             "<br>author: Irina Polynkina" +
                             "<br>email: irina.polynkina.dev@yandex.ru");
             infoFrame.setVisible(true);
