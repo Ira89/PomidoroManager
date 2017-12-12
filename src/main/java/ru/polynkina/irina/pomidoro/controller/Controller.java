@@ -190,15 +190,22 @@ public class Controller {
                 int idTask = resultSet.getInt(1);
                 dbManager.executeUpdate("INSERT INTO active_task (id_task) VALUES(" + idTask + ")");
                 LOGGER.info("id=" + idTask + " inserting into the active_task table");
+
                 ResultSet resultType = dbManager.executeQuery("SELECT type FROM task WHERE id = " + idTask);
                 resultType.next();
                 GenerationType type = GenerationType.valueOfEnum(resultType.getString(1));
                 resultType.close();
-                LocalDate nextDate = LocalDate.now();
+
+                ResultSet resultStartDate = dbManager.executeQuery("SELECT start_date FROM task WHERE id = " + idTask);
+                resultStartDate.next();
+                LocalDate startDate = LocalDate.parse(resultStartDate.getDate(1).toString());
+                resultStartDate.close();
+
+                LocalDate nextDate;
                 switch(type) {
-                    case EVERY_DAY: nextDate = nextDate.plusDays(1); break;
-                    case EVERY_WEEK: nextDate = nextDate.plusWeeks(1); break;
-                    default: nextDate = nextDate.plusMonths(1); break;
+                    case EVERY_DAY: nextDate = startDate.plusDays(1); break;
+                    case EVERY_WEEK: nextDate = startDate.plusWeeks(1); break;
+                    default: nextDate = startDate.plusMonths(1); break;
                 }
                 dbManager.executeUpdate("UPDATE task SET start_date = '" + nextDate + "' WHERE id = " + idTask);
                 LOGGER.info("id=" + idTask + " set start_date = " + nextDate);
@@ -232,7 +239,7 @@ public class Controller {
         LOGGER.info("ends find overdue tasks");
     }
 
-    private Task parseTask(ResultSet resultSet) throws Exception {
+    public Task parseTask(ResultSet resultSet) throws Exception {
         int id = resultSet.getInt(1);
         String description = resultSet.getString(2);
         Priority priority = Priority.valueOf(resultSet.getString(3));
